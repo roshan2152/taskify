@@ -1,15 +1,13 @@
 import { User } from "firebase/auth";
-
-
+import Navbar from "@/components/navigationBar/navbar";
 interface HomeProps {
     user:User;
 }
 
-
 export const Home = ({user}:HomeProps) => {
     return (
         <div>
-            <h1>Welcome to the Taskify {user.displayName}</h1>
+            <Navbar />
         </div>
     )
 }
