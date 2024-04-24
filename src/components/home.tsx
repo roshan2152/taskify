@@ -4,7 +4,7 @@ interface HomeProps {
     user:User;
 }
 
-export const Home = ({user}:HomeProps) => {
+export const Home = () => {
     return (
         <div>
             <Navbar />
