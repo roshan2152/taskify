@@ -1,17 +1,16 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
+
 import {provider,auth} from "@/dbConfig/auth";
 import { User, signInWithPopup,onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
 import { Home } from "@/components/home";
+import { Login } from "@/components/login";
 
-const Login = () => {
+const Landing = () => {
 
     const [user, setUser] = useState<User | null>(null);
-    const router = useRouter();
+    const [isLoading,setIsLoading] = useState<boolean>(true);
 
     const signIn = async () => {
         try {
@@ -25,25 +24,21 @@ const Login = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-            console.log(user)
+            setIsLoading(false);
+            console.log(currentUser)
         });
         return () => unsubscribe();
     },[user])
 
     return (
-        <div className="flex items-center justify-center border-2 h-[100vh]">
-        { !user && <Button
-            size="lg"
-            variant="default"
-            onClick={signIn}
-        >
-            <LogIn className="w-4 h-4 mr-2"/>
-            Login
-        </Button>}
-        {
-            user && <Home user={user}/>
-        }
-        </div>
+        <>
+            {!user && isLoading && <div>Loading...</div>}
+            {!user && !isLoading && 
+                <Login user={user} signIn={signIn}/>
+            }
+
+            {user && <Home user={user}/>}
+        </>
     )
 }
-export default Login
+export default Landing
