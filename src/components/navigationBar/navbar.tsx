@@ -1,14 +1,18 @@
 'use client'
 import React from 'react'
+import { LogOut } from 'lucide-react';
 import { ModeToggle } from '../mode-toggle';
 import { ListTodo } from 'lucide-react';
-import { auth } from '@/dbConfig/auth';
+
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-
+import { signOut } from 'firebase/auth';
+import { auth } from '@/dbConfig/auth';
+import { Button } from '../ui/button';
+import Image from 'next/image';
 
 function navbar() {
 
@@ -24,11 +28,23 @@ function navbar() {
                 <PopoverTrigger>
                     <div className="flex items-center gap-3">
                         <ModeToggle />
-                        <img src={auth.currentUser?.photoURL!} alt="profile" className="w-10 h-10 rounded-full" />
+                        <img 
+                            src={auth.currentUser?.photoURL!} alt="profile" className="w-10 h-10 rounded-full"
+                        />
                     </div>
                 </PopoverTrigger>
                 <PopoverContent>
-                    
+                    <div className='flex items-center justify-center'>
+                        <Button
+                            onClick={() => signOut(auth)}
+                            size="sm"
+                            variant="destructive"
+                            className='w-full'
+                        >
+                            <LogOut className='w-4 h-4 mr-2'/>
+                            Sign Out
+                        </Button>
+                    </div>
                 </PopoverContent>
             </Popover>
         </div>

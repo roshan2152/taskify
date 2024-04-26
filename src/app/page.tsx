@@ -37,7 +37,7 @@ const Landing = () => {
                 <Login user={user} signIn={signIn}/>
             }
 
-            {user && <Home user={user}/>}
+            {user && <Home/>}
         </>
     )
 }
