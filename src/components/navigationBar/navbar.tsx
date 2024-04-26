@@ -17,7 +17,7 @@ import Image from 'next/image';
 function navbar() {
 
     return (
-        <div className="flex justify-between items-center h-full text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3 px-5">
+        <div className="flex justify-between items-center text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3 fixed top-0 px-5">
             <div className="flex items-center gap-3">
                 <ListTodo color="#0c45ed" strokeWidth={2.75} />
                 <div>
@@ -47,7 +47,6 @@ function navbar() {
                     </div>
                 </PopoverContent>
             </Popover>
-
         </div>
     )
 }
