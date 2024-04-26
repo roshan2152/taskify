@@ -9,9 +9,9 @@ interface HomeProps {
 
 export const Home = ({ user }: HomeProps) => {
     return (
-        <div className="h-screen">
+        <div className="h-screen dark:bg-[#1d2125]">
             <Navbar />
-            <div className="flex flex-row pt-20 h-full">
+            <div className="flex flex-row pt-16 h-full">
                 <div className="hidden md:flex">
                     <Sidebar />
                 </div>

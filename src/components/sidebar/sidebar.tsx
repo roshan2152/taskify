@@ -10,7 +10,7 @@ import { Separator } from '../ui/separator'
 
 export default function Sidebar() {
 	return (
-		<div className="flex flex-col justify-between border-r-2 px-5 text-primary w-[20vw] dark:bg-[#1E1F22] h-full ">
+		<div className="flex flex-col justify-between px-5 text-primary w-[20vw] dark:bg-transparent border-r-2 border-[#dddfe5] dark:border-[#282e34] h-full ">
 			<div className="flex flex-col flex-start">
 				<div>
 					<p className='text-[#44556f] text-sm font-bold dark:text-[#c4c5c6] p-3'>PLANNING</p>
@@ -36,7 +36,7 @@ export default function Sidebar() {
 						Issues
 					</button>
 				</div>
-				<Separator />
+
 				<div>
 					<button className='flex flex-row gap-4 text-[#44556f] rounded-md hover:bg-[#e9f2ff] dark:text-white dark:hover:bg-gray-700 text-sm p-3 w-full items-center'>
 						<CirclePlus
