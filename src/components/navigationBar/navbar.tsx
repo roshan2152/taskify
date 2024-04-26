@@ -12,12 +12,11 @@ import {
 import { signOut } from 'firebase/auth';
 import { auth } from '@/dbConfig/auth';
 import { Button } from '../ui/button';
-import Image from 'next/image';
 
 function navbar() {
 
     return (
-        <div className="flex justify-between items-center text-primary w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3 fixed top-0 px-5">
+        <div className="flex justify-between items-center text-primary w-full dark:bg-transparent border-b-2 border-[#dddfe5] dark:border-[#282e34] bg-[#E3E5E8] py-2 fixed top-0 px-5">
             <div className="flex items-center gap-3">
                 <ListTodo color="#0c45ed" strokeWidth={2.75} />
                 <div>
