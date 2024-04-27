@@ -8,7 +8,6 @@ export const loginUser = async () => {
     return new Promise(async (resolve, reject) => {
 
         if (auth.currentUser) {
-
             try {
                 const docRef = doc(db, "user", auth.currentUser.uid);
                 const userData = await getDoc(docRef);
@@ -39,8 +38,9 @@ export const getUser = async () => {
                 try {
                     const docRef = doc(db, "user", user.uid);
                     const userData = await getDoc(docRef);
+
                     if (userData.exists()) {
-                        resolve({ uid: user.uid, ...userData.data() });
+                        resolve(userData.data());
                     } else {
                         reject({ message: 'User does not exists' });
                     }

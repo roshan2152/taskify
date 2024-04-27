@@ -9,11 +9,17 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { signOut } from 'firebase/auth';
+import {  signOut } from 'firebase/auth';
 import { auth } from '@/dbConfig/auth';
 import { Button } from '../ui/button';
+import { UserType } from '@/types/userType';
 
-function navbar() {
+interface NavbarProps {
+    setUser: React.Dispatch<React.SetStateAction<UserType | null>>;
+}
+
+
+function navbar({ setUser }: NavbarProps) {
 
     return (
         <div className="flex justify-between items-center text-primary w-full dark:bg-transparent border-b-2 border-[#dddfe5] dark:border-[#282e34] bg-[#E3E5E8] py-2 fixed top-0 px-5">
@@ -27,7 +33,7 @@ function navbar() {
                 <PopoverTrigger>
                     <div className="flex items-center gap-3">
                         <ModeToggle />
-                        <img 
+                        <img
                             src={auth.currentUser?.photoURL!} alt="profile" className="w-10 h-10 rounded-full"
                         />
                     </div>
@@ -35,12 +41,12 @@ function navbar() {
                 <PopoverContent>
                     <div className='flex items-center justify-center'>
                         <Button
-                            onClick={() => signOut(auth)}
+                            onClick={() => { signOut(auth); setUser(null); }}
                             size="sm"
                             variant="destructive"
                             className='w-full'
                         >
-                            <LogOut className='w-4 h-4 mr-2'/>
+                            <LogOut className='w-4 h-4 mr-2' />
                             Sign Out
                         </Button>
                     </div>
@@ -48,6 +54,6 @@ function navbar() {
             </Popover>
         </div>
     )
-}
+};
 
-export default navbar
+export default navbar;
