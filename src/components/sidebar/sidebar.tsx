@@ -4,43 +4,47 @@ import {
 	Columns3,
 	BadgeAlert
 } from 'lucide-react'
-import { Project } from '@/types/projectType'
+import { ProjectType } from '@/types/projectType'
 import Modal from '../Modal/modal';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { ProjectList } from '../projectList/projectList';
+import { createProject } from '@/backend/projects';
+import { auth } from '@/dbConfig/auth';
 
 interface SidebarProps {
-	projects : Project[],
-	setProjects : React.Dispatch<React.SetStateAction<Project[]>>
+	projects: ProjectType[],
+	setProjects: React.Dispatch<React.SetStateAction<ProjectType[]>>
 }
 
-export default function Sidebar({projects,setProjects}:SidebarProps) {
+export default function Sidebar({ projects, setProjects }: SidebarProps) {
 
-	const [showCreateProjectModal,setShowCreateProjectModal] = React.useState<boolean>(false);
-	const [projectName,setProjectName] = React.useState<string>('');
-	
-	const generateProjectId = () => {
-		return Math.floor(Math.random()*1000001).toString();
-	}
+	const [showCreateProjectModal, setShowCreateProjectModal] = React.useState<boolean>(false);
+	const [projectName, setProjectName] = React.useState<string>('');
 
-	const onCreateProject = () => {
-		if(projectName === '') return;
 
-		const newProject : Project = {
-			id: generateProjectId(),
-			name: projectName,
+	const onCreateProject = async () => {
+		if (projectName === '') { 
+			return alert('Project name is required');
+		} 
+
+		try {
+			const res = await createProject(projectName, auth.currentUser?.uid) as ProjectType;
+			console.log(res);
+			setProjects([...projects, res]);
+		} catch (err) {
+			console.log(err)
+		} finally {
+			setShowCreateProjectModal(false);
+			setProjectName('');
 		}
-		setProjects([...projects,newProject]);
-		setShowCreateProjectModal(false);
-		setProjectName('');
-	}
-	
+	};
+
 	return (
 		<div className="flex flex-col justify-between px-5 text-primary w-[20vw] dark:bg-transparent border-r-2 border-[#dddfe5] dark:border-[#282e34] h-full ">
 			<Modal showModal={showCreateProjectModal} setShowModal={setShowCreateProjectModal}>
 				<div className='flex flex-col gap-y-4'>
-					<Input placeholder='Project name' onChange={(e) => setProjectName(e.target.value)}/>
+					<Input placeholder='Project name' onChange={(e) => setProjectName(e.target.value)} />
 					<Button onClick={onCreateProject} size='sm' variant='default'>Create Project</Button>
 				</div>
 			</Modal>
@@ -77,7 +81,7 @@ export default function Sidebar({projects,setProjects}:SidebarProps) {
 				</div>
 			</div>
 			<div className='flex flex-col justify-center items-center pb-3'>
-				<p className='text-[#44556f] text-xs'>You're in a team-managed project</p>
+				<p className='text-[#44556f] text-xs'>You are in a team-managed project</p>
 				<button className='text-[#44556f] text-xs font-semibold'>Learn more</button>
 			</div>
 		</div>

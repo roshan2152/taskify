@@ -1,46 +1,61 @@
-
 import { getFirestore, getDoc, doc, setDoc, serverTimestamp, updateDoc, arrayUnion, collection, } from 'firebase/firestore'
-import { auth } from '../dbConfig/auth'
 export const db = getFirestore();
 
-export const createProject = (userData: any, userId: any) => {
+export const createProject = (name: string, userId: string | undefined) => {
     return new Promise(async (resolve, reject) => {
 
         const docRef = doc(collection(db, "projects"));
 
         const data = {
-            projectName: userData.name,
-            members: [],// will contain users id {email: abc@gmail.com, permission: 0}
-            boardsId: [],
+            projectName: name,
+            members: [],        // will contain users id {email: abc@gmail.com, permission: 0}
+            boards: [],
         };
 
         try {
-
             await setDoc(docRef, data);
 
-            const userDocRef = doc(db, "user", userId);
-            const docSnap = await getDoc(userDocRef);
+            if (userId !== undefined) {
+                const userDocRef = doc(db, "user", userId);
+                const docSnap = await getDoc(userDocRef);
 
-            if (docSnap.exists()) {
-                const currentArray = docSnap.data()?.arrayField || [];
-                const updatedArray = arrayUnion(currentArray, docRef.id);
+                if (docSnap.exists()) {
+                    await updateDoc(userDocRef, {
+                        projects: arrayUnion(docRef.id),
+                    });
 
-                await updateDoc(docRef, {
-                    projects: updatedArray
-                });
-
-                console.log("project id added to array successfully.");
-                resolve({ ...data, projectId: docRef.id });
-            } else {
-                console.error("Document does not exist.");
-                reject({ message: 'Error!' });
+                    console.log("project id added to array successfully.");
+                    resolve({ ...data, id: docRef.id });
+                } else {
+                    console.error("Error in creating project.");
+                    reject({ message: 'Error!' });
+                }
             }
+
         } catch (err) {
             reject(err);
         }
     });
 };
 
+
+export const getProject = (projectId: string) => {
+    return new Promise(async (resolve, reject) => {
+
+        try {
+            const docRef = doc(db, "projects", projectId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                resolve({ id: docRef.id, ...docSnap.data() });
+            }
+
+        } catch (err) {
+            console.log(err);
+            reject({ message: 'Error' });
+        }
+    });
+};
 
 export const updateProject = (projectId: any, data: any) => {
     return new Promise(async (resolve, request) => {
@@ -61,7 +76,6 @@ export const updateProject = (projectId: any, data: any) => {
 
     });
 };
-
 
 export const addMember = (projectId: any, memberData: any) => {
     return new Promise(async (resolve, request) => {
