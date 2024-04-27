@@ -1,8 +1,6 @@
 import React from 'react'
 import {
 	CirclePlus,
-	Settings,
-	SquareGanttChart,
 	Columns3,
 	BadgeAlert
 } from 'lucide-react'
@@ -10,6 +8,7 @@ import { Project } from '@/types/projectType'
 import Modal from '../Modal/modal';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
+import { ProjectList } from '../projectList/projectList';
 
 interface SidebarProps {
 	projects : Project[],
@@ -26,7 +25,7 @@ export default function Sidebar({projects,setProjects}:SidebarProps) {
 	}
 
 	const onCreateProject = () => {
-		if(projectName === '') return alert('Project name is required');
+		if(projectName === '') return;
 
 		const newProject : Project = {
 			id: generateProjectId(),
@@ -72,17 +71,9 @@ export default function Sidebar({projects,setProjects}:SidebarProps) {
 							strokeWidth={2.5} />
 						Issues
 					</button>
-				</div>
-
-				<div>
-					
-					<button className='flex flex-row gap-4 text-[#44556f] rounded-md hover:bg-[#e9f2ff] dark:text-white dark:hover:bg-gray-700 text-sm p-3 w-full items-center'>
-						<Settings
-							className="group-hover:text-white transition text-bg-[#44556f]"
-							size={20}
-							strokeWidth={2.5} />
-						Project settings
-					</button>
+					<div>
+						<ProjectList projects={projects} />
+					</div>
 				</div>
 			</div>
 			<div className='flex flex-col justify-center items-center pb-3'>
