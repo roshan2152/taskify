@@ -3,10 +3,16 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import MainBoard from '../mainBoard/mainBoard';
 import { updateBoard } from '@/backend/boards';
+import { Project } from '@/types/projectType';
 
-export default function Board() {
-    const [boardName, setBoardName] = useState("BoardName");
-    const [boardNameisEditable, setBoardNameisEditable] = useState(false);
+interface BoardProps {
+    projects: Project[];
+    setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+}
+
+export default function Board({ projects, setProjects }: BoardProps) {
+    const [boardName, setBoardName] = useState<string>("BoardName");
+    const [boardNameisEditable, setBoardNameisEditable] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const toggleBoardNameEditable = () => {
@@ -48,36 +54,46 @@ export default function Board() {
     }, []);
 
     return (
-        <div className=' flex flex-col w-[80vw] h-full px-5'>
-            <div>
-                <div className='text-[#44556f] dark:text-[#b6c2cf] text-sm '>
-                    projectName / boardName
-                </div>
+        <>
+            {projects.length>0 ? (
+                <div className='flex flex-col w-[80vw] h-full px-5'>
+                <div>
+                    <div className='text-[#44556f] dark:text-[#b6c2cf] text-sm '>
+                        projectName / boardName
+                    </div>
 
-                <div className='h-16 flex items-center'>
-                    {boardNameisEditable ? (
-                        <Input
-                            className='py-7 pr-3 pl-[30px] w-[30rem] text-2xl font-semibold border-blue-400 border-2 dark:text-[#b6c2cf] hover:bg-[#f7f8f9] dark:hover:bg-[#1d2125]'
-                            ref={inputRef}
-                            type='text'
-                            value={boardName}
-                            onChange={handleChange}
-                            onKeyDown={handleKeyPress}
-                        />
-                    ) : (
-                        <Button onClick={toggleBoardNameEditable} className='py-7 pr-3 pl-0 text-2xl font-semibold text-black dark:text-[#b6c2cf] dark:bg-transparent bg-white  hover:bg-[#f7f8f9] dark:hover:bg-[#313539]'>
-                            {boardName}
-                        </Button>
-                    )}
-                </div>
+                    <div className='h-16 flex items-center'>
+                        {boardNameisEditable ? (
+                            <Input
+                                className='py-7 pr-3 pl-[30px] w-[30rem] text-2xl font-semibold border-blue-400 border-2 dark:text-[#b6c2cf] hover:bg-[#f7f8f9] dark:hover:bg-[#1d2125]'
+                                ref={inputRef}
+                                type='text'
+                                value={boardName}
+                                onChange={handleChange}
+                                onKeyDown={handleKeyPress}
+                            />
+                        ) : (
+                            <Button onClick={toggleBoardNameEditable} className='py-7 pr-3 pl-0 text-2xl font-semibold text-black dark:text-[#b6c2cf] dark:bg-transparent bg-white  hover:bg-[#f7f8f9] dark:hover:bg-[#313539]'>
+                                {boardName}
+                            </Button>
+                        )}
+                    </div>
 
-                <Input
-                    className='py-4 pr-3 w-[10rem] text-sm  rounded-none bg-transparent'
-                    type='text'
-                    placeholder='Search this board'
-                />
+                    <Input
+                        className='py-4 pr-3 w-[10rem] text-sm  rounded-none bg-transparent'
+                        type='text'
+                        placeholder='Search this board'
+                    />
+                </div>
+                <MainBoard />
             </div>
-            <MainBoard />
-        </div>
+            ):(
+                <div className='flex flex-col w-[80vw] h-full px-5'>
+                    <h1 className='text-2xl font-semibold text-center mt-20'>
+                        No projects found. Create a project to get started.
+                    </h1>
+                </div>
+            )}           
+        </>
     );
 }

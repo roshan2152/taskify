@@ -25,6 +25,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { addColumn } from '@/backend/boards';
 import { addTicket } from '@/backend/tickets';
+import { Plus, PlusCircle } from 'lucide-react';
 
 type DNDType = {
     id: UniqueIdentifier;
@@ -302,8 +303,8 @@ export default function MainBoard() {
                             </div>
                         ))}
                     </SortableContext>
-                    <Button onClick={() => setShowAddContainerModal(true)}>
-                        Add Container
+                    <Button onClick={() => setShowAddContainerModal(true)} className='rounded-full' size="sm">
+                        <Plus className='h-3 w-3'/>
                     </Button>
 
                     <DragOverlay adjustScale={false}>
