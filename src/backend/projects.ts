@@ -10,7 +10,7 @@ export const createProject = (userData: any, userId: any) => {
 
         const data = {
             projectName: userData.name,
-            members: [],        // will contain users id {email: abc@gmail.com, permission: 0}
+            members: [],// will contain users id {email: abc@gmail.com, permission: 0}
             boardsId: [],
         };
 
