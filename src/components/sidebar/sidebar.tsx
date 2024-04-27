@@ -6,20 +6,57 @@ import {
 	Columns3,
 	BadgeAlert
 } from 'lucide-react'
-import { Separator } from '../ui/separator'
+import { Project } from '@/types/projectType'
+import Modal from '../Modal/modal';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
 
-export default function Sidebar() {
+interface SidebarProps {
+	projects : Project[],
+	setProjects : React.Dispatch<React.SetStateAction<Project[]>>
+}
+
+export default function Sidebar({projects,setProjects}:SidebarProps) {
+
+	const [showCreateProjectModal,setShowCreateProjectModal] = React.useState<boolean>(false);
+	const [projectName,setProjectName] = React.useState<string>('');
+	
+	const generateProjectId = () => {
+		return Math.floor(Math.random()*1000001).toString();
+	}
+
+	const onCreateProject = () => {
+		if(projectName === '') return alert('Project name is required');
+
+		const newProject : Project = {
+			id: generateProjectId(),
+			name: projectName,
+		}
+		setProjects([...projects,newProject]);
+		setShowCreateProjectModal(false);
+		setProjectName('');
+	}
+	
 	return (
 		<div className="flex flex-col justify-between px-5 text-primary w-[20vw] dark:bg-transparent border-r-2 border-[#dddfe5] dark:border-[#282e34] h-full ">
+			<Modal showModal={showCreateProjectModal} setShowModal={setShowCreateProjectModal}>
+				<div className='flex flex-col gap-y-4'>
+					<Input placeholder='Project name' onChange={(e) => setProjectName(e.target.value)}/>
+					<Button onClick={onCreateProject} size='sm' variant='default'>Create Project</Button>
+				</div>
+			</Modal>
 			<div className="flex flex-col flex-start">
 				<div>
 					<p className='text-[#44556f] text-sm font-bold dark:text-[#c4c5c6] p-3'>PLANNING</p>
-					<button className='flex flex-row gap-4 text-[#44556f] rounded-md hover:bg-[rgb(215,216,217)] dark:text-white dark:hover:bg-gray-700 text-sm p-3 w-full items-center flex-wrap'>
-						<SquareGanttChart
+					<button className='flex flex-row gap-4 text-[#44556f] rounded-md hover:bg-[#e9f2ff] dark:text-white dark:hover:bg-gray-700 text-sm p-3 w-full items-center'
+						onClick={() => setShowCreateProjectModal(true)}
+					>
+						<CirclePlus
 							className="group-hover:text-white transition text-bg-[#44556f]"
 							size={20}
-							strokeWidth={2.5} />
-						Timeline
+							strokeWidth={2.5}
+						/>
+						Add New Project
 					</button>
 					<button className='flex flex-row gap-4 text-[#44556f] rounded-md hover:bg-[#e9f2ff] dark:text-white dark:hover:bg-gray-700 text-sm p-3 w-full items-center'>
 						<Columns3
@@ -38,14 +75,7 @@ export default function Sidebar() {
 				</div>
 
 				<div>
-					<button className='flex flex-row gap-4 text-[#44556f] rounded-md hover:bg-[#e9f2ff] dark:text-white dark:hover:bg-gray-700 text-sm p-3 w-full items-center'>
-						<CirclePlus
-							className="group-hover:text-white transition text-bg-[#44556f]"
-							size={20}
-							strokeWidth={2.5}
-						/>
-						Add New Project
-					</button>
+					
 					<button className='flex flex-row gap-4 text-[#44556f] rounded-md hover:bg-[#e9f2ff] dark:text-white dark:hover:bg-gray-700 text-sm p-3 w-full items-center'>
 						<Settings
 							className="group-hover:text-white transition text-bg-[#44556f]"
