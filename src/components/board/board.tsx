@@ -41,7 +41,7 @@ export default function Board() {
     return (
         <div className=' flex flex-col w-[80vw] h-full px-5'>
             <div>
-                <div className='text-[#44556f] dark:text-[#b6c2cf] text-sm mb-3'>
+                <div className='text-[#44556f] dark:text-[#b6c2cf] text-sm '>
                     projectName / boardName
                 </div>
 
