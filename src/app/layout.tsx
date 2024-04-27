@@ -1,4 +1,4 @@
-import Metadata from "next";
+import type {Metadata} from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from 'next-themes'
@@ -6,7 +6,7 @@ import Navbar from "@/components/navigationBar/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
+export const metadata:  Metadata = {
     title: "Taskify",
     description: "Managing tasks got easier with Taskify",
 };
