@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import MainBoard from '../mainBoard/mainBoard';
+import { updateBoard } from '@/backend/boards';
 
 export default function Board() {
     const [boardName, setBoardName] = useState("BoardName");
@@ -18,10 +19,18 @@ export default function Board() {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (value.length <= 30) {
             setBoardName(value);
+            
+            const boardId = '';
+
+            try {
+                await updateBoard(boardId,boardName);
+            } catch (err) {
+                console.log(err);
+            }
         }
     };
 

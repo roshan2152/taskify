@@ -1,8 +1,8 @@
 "use client"
 
 
-import {provider,auth} from "@/dbConfig/auth";
-import { User, signInWithPopup,onAuthStateChanged } from "firebase/auth";
+import { provider, auth } from "@/dbConfig/auth";
+import { User, signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { Home } from "@/components/home";
 import { Login } from "@/components/login";
@@ -10,7 +10,7 @@ import { Login } from "@/components/login";
 const Landing = () => {
 
     const [user, setUser] = useState<User | null>(null);
-    const [isLoading,setIsLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const signIn = async () => {
         try {
@@ -28,13 +28,13 @@ const Landing = () => {
             console.log(currentUser)
         });
         return () => unsubscribe();
-    },[user])
+    }, [user])
 
     return (
         <>
             {!user && isLoading && <div>Loading...</div>}
-            {!user && !isLoading && 
-                <Login user={user} signIn={signIn}/>
+            {!user && !isLoading &&
+                <Login user={user} signIn={signIn} />
             }
 
             {user && <Home user={user}/>}
