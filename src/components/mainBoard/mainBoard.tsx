@@ -23,6 +23,8 @@ import Items from '@/components/Item/item';
 import Modal from '@/components/Modal/modal';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { addColumn } from '@/backend/boards';
+import { addTicket } from '@/backend/tickets';
 
 type DNDType = {
     id: UniqueIdentifier;
@@ -44,7 +46,7 @@ export default function MainBoard() {
     const [showAddContainerModal, setShowAddContainerModal] = useState(false);
     const [showAddItemModal, setShowAddItemModal] = useState(false);
 
-    const onAddContainer = () => {
+    const onAddContainer = async () => {
         if (!containerName) return;
         const id = `container-${uuidv4()}`;
         setContainers([
@@ -55,11 +57,18 @@ export default function MainBoard() {
                 items: [],
             },
         ]);
+
+        try {
+            const boardId = '';
+            await addColumn(boardId, containerName);
+        } catch (err) {
+            console.log('Error in adding column', err)
+        }
         setContainerName('');
         setShowAddContainerModal(false);
     };
 
-    const onAddItem = () => {
+    const onAddItem = async () => {
         if (!itemName) return;
         const id = `item-${uuidv4()}`;
         const container = containers.find((item) => item.id === currentContainerId);
@@ -69,12 +78,22 @@ export default function MainBoard() {
             title: itemName,
         });
         setContainers([...containers]);
+
+        try {
+            const boardId = '';
+            const columnIndex = 0;
+
+            await addTicket(boardId, columnIndex, itemName);
+        } catch (err) {
+            console.log('Error in adding ticket', err);
+        }
+
         setItemName('');
         setShowAddItemModal(false);
     };
 
     // Find the value of the items
-    function findValueOfItems(id: UniqueIdentifier | undefined, type: string) {
+    const findValueOfItems = (id: UniqueIdentifier | undefined, type: string) => {
         if (type === 'container') {
             return containers.find((item) => item.id === id);
         }
@@ -113,7 +132,7 @@ export default function MainBoard() {
         }),
     );
 
-    function handleDragStart(event: DragStartEvent) {
+    const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
         const { id } = active;
         setActiveId(id);
@@ -261,14 +280,15 @@ export default function MainBoard() {
 
                     <SortableContext items={containers.map((i) => i.id)}>
                         {containers.map((container) => (
-                            <div className="h-full">
+                            <div className="h-full" key={container.id}>
                                 <Container
+                                    key={container.id}
                                     id={container.id}
                                     title={container.title}
-                                    key={container.id}
                                     onAddItem={() => {
                                         setShowAddItemModal(true);
                                         setCurrentContainerId(container.id);
+                                        console.log(container.id)
                                     }}
                                 >
                                     <SortableContext items={container.items.map((i) => i.id)}>
