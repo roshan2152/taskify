@@ -1,23 +1,51 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
-import { User } from "firebase/auth";
+import { auth, provider } from "@/dbConfig/auth";
+import { User, onAuthStateChanged, signInWithPopup } from "firebase/auth";
 import { LogIn } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { loginUser } from "@/backend/user";
 
+export const Login = () => {
 
-interface LoginProps {
-    user: null | User,
-    signIn: () => Promise<void>
-}
+    const [user, setUser] = useState<User | null>(auth.currentUser);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const router = useRouter();
 
-export const Login = ({user,signIn}:LoginProps) => {
+    const signIn = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            
+            //router.push('/')
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
-    return (<div className="flex items-center justify-center border-2 h-[100vh]">
-        <Button
-            size="lg"
-            variant="default"
-            onClick={signIn}
-        >
-            <LogIn className="w-4 h-4 mr-2"/>
-            Login
-        </Button>
-    </div>)
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setIsLoading(false);
+            console.log(currentUser)
+        });
+        return () => unsubscribe();
+    }, [user])
+    
+    return (
+        <div className="flex items-center justify-center h-[100vh]">
+            {isLoading && <p>Loading...</p>}
+            {user && <p>Welcome {user.displayName}</p>}
+
+            {!isLoading && !user && <Button
+                size="lg"
+                variant="default"
+                onClick={signIn}
+            >
+                <LogIn className="w-4 h-4 mr-2"/>
+                Login
+            </Button>}
+        </div>
+    )
 }
