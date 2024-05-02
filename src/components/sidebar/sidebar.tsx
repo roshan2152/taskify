@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { User,onAuthStateChanged} from "firebase/auth";
+import { User, onAuthStateChanged } from "firebase/auth";
 
 import {
 	CirclePlus,
@@ -12,33 +12,62 @@ import { ProjectType } from '@/types/projectType'
 import Modal from '../Modal/modal';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { getProjects,createProject } from "@/backend/projects";
+import { createProject, getProject } from "@/backend/projects";
 import { ProjectList } from '../projectList/projectList';
 import { auth } from '@/dbConfig/auth';
+import { UserType } from '@/types/userType';
+import { getUser } from '@/backend/user';
 
 
 export default function Sidebar() {
 
-	const [showCreateProjectModal,setShowCreateProjectModal] = useState<boolean>(false);
-	const [projectName,setProjectName] = useState<string>('');
-	const [user,setUser] = useState<User | null>(null);
-	const [isLoading , setIsLoading] = useState<boolean>(true);
-	const [isCreatingProject,setIsCreatingProject] = useState<boolean>(false);
+	const [showCreateProjectModal, setShowCreateProjectModal] = useState<boolean>(false);
+	const [projectName, setProjectName] = useState<string>('');
 
-	const [projects,setProjects] = useState<ProjectType[]>([]);
+	const [user, setUser] = useState<User | null>(null);
+	const [userData, setUserData] = useState<UserType | null>(null);
+	const [projects, setProjects] = useState<ProjectType[]>([]);
+
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [isCreatingProject, setIsCreatingProject] = useState<boolean>(false);
+
+	const getUserData = async () => {
+		const res = await getUser() as UserType;
+		setUserData(res);
+	};
+
+	const getProjects = async () => {
+		if (userData && userData.projects) {
+			const resultArray = userData?.projects.map(async (id: string) => await getProject(id) as ProjectType);
+			const newArray = await Promise.all(resultArray);
+			setProjects(newArray);
+		}
+	};
+
+	useEffect(() => {
+		getUserData();
+	}, []);
+
+	useEffect(() => {
+		getProjects();
+	}, [userData]);
+
+	console.log(userData)
+	console.log(projects)
 
 	const onCreateProject = async () => {
 		setIsCreatingProject(true);
-		console.log(user?.uid)
-		
-	
-		const newProject = await createProject(projectName, user?.uid)
-		console.log(newProject);
-		setProjects([...projects,newProject as ProjectType])
-		setIsCreatingProject(false);
-		setShowCreateProjectModal(false);	
+
+		try {
+			const newProject = await createProject(projectName, user?.uid) as ProjectType;
+			setProjects([...projects, newProject as ProjectType]);
+		} catch (err) {
+			console.log(err);
+		} finally {
+			setIsCreatingProject(false);
+			setShowCreateProjectModal(false);
+		}
 	}
-	
 
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -46,15 +75,15 @@ export default function Sidebar() {
 			setIsLoading(false);
 		});
 		return () => unsubscribe();
-	},[user])
-	
+	}, [user])
+
 	return (
 		<>
-			<div className= {`${!user && `hidden`} flex flex-col justify-between px-5 text-primary w-[20%] dark:bg-transparent border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>
+			<div className={`${!user && `hidden`} flex flex-col justify-between px-5 text-primary w-[20%] dark:bg-transparent border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>
 				<Modal showModal={showCreateProjectModal} setShowModal={setShowCreateProjectModal}>
 					<div className='flex flex-col gap-y-4'>
-						<Input placeholder='Project name' onChange={(e) => setProjectName(e.target.value)} disabled={isCreatingProject}/>
-						<Button onClick={onCreateProject} size='sm' variant='default' disabled={isCreatingProject} >{isCreatingProject? "Creating your project..." :"Create Project"}</Button>
+						<Input placeholder='Project name' onChange={(e) => setProjectName(e.target.value)} disabled={isCreatingProject} />
+						<Button onClick={onCreateProject} size='sm' variant='default' disabled={isCreatingProject} >{isCreatingProject ? "Creating your project..." : "Create Project"}</Button>
 					</div>
 				</Modal>
 				<div className="flex flex-col flex-start">
@@ -84,13 +113,15 @@ export default function Sidebar() {
 								strokeWidth={2.5} />
 							Issues
 						</button>
+
 						<div>
 							<ProjectList projects={projects} />
 						</div>
+
 					</div>
 				</div>
 				<div className='flex flex-col justify-center items-center pb-3'>
-					<p className='text-[#44556f] text-xs'>You're in a team-managed project</p>
+					<p className='text-[#44556f] text-xs'>You are in a team-managed project</p>
 					<button className='text-[#44556f] text-xs font-semibold'>Learn more</button>
 				</div>
 			</div>
