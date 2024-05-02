@@ -101,3 +101,19 @@ export const addMember = (projectId: any, memberData: any) => {
 
     });
 };
+
+export const getProjects = (userId: any) => {
+    return new Promise(async (resolve, reject) => {
+
+        const userDocRef = doc(db, "user", userId);
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+            const projects = docSnap.data()?.projects || [];
+            resolve(projects);
+        } else {
+            console.error("Document does not exist.");
+            reject({ message: 'Error!' });
+        }
+    });
+}
