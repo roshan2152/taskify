@@ -24,7 +24,7 @@
     "framer-motion": "^11.1.7",
     "lucide-react": "^0.372.0",
     "nanoid": "^5.0.7",
-    "next": "^14.3.0-canary.28",
+    "next": "^14.3.0-canary.36",
     "next-themes": "^0.3.0",
     "react": "^18",
     "react-dom": "^18",

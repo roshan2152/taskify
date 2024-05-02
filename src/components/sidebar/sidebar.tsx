@@ -7,6 +7,7 @@ import {
 	CirclePlus,
 	Columns3,
 	BadgeAlert,
+	TriangleAlert
 } from 'lucide-react'
 import { ProjectType } from '@/types/projectType'
 import Modal from '../Modal/modal';
@@ -30,6 +31,7 @@ export default function Sidebar() {
 
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [isCreatingProject, setIsCreatingProject] = useState<boolean>(false);
+	const [nameExists, setNameExists] = useState<boolean>(false);
 
 	const getUserData = async () => {
 		const res = await getUser() as UserType;
@@ -49,25 +51,41 @@ export default function Sidebar() {
 	}, []);
 
 	useEffect(() => {
-		getProjects();
-	}, [userData]);
-
-	console.log(userData)
-	console.log(projects)
+		if (userData && userData.projects) {
+			getProjects();
+		}
+	}, [userData?.projects]);
 
 	const onCreateProject = async () => {
 		setIsCreatingProject(true);
 
 		try {
+			const projectExists = projects.some(project => project.projectName === projectName);
+			if (projectExists) {
+				setNameExists(true);
+				setIsCreatingProject(false);
+				setShowCreateProjectModal(true);
+				return;
+			}
+
 			const newProject = await createProject(projectName, user?.uid) as ProjectType;
-			setProjects([...projects, newProject as ProjectType]);
-		} catch (err) {
-			console.log(err);
-		} finally {
+			console.log(newProject);
+			if (nameExists) setNameExists(false);
+			setProjects([...projects, newProject]);
 			setIsCreatingProject(false);
 			setShowCreateProjectModal(false);
+		} catch (err) {
+			console.log(err);
 		}
-	}
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			onCreateProject();
+		}
+	};
+	
 
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -79,11 +97,20 @@ export default function Sidebar() {
 
 	return (
 		<>
-			<div className={`${!user && `hidden`} flex flex-col justify-between px-5 text-primary w-[20%] dark:bg-transparent border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>
+			<div className={`${!user && `hidden`} flex flex-col justify-between px-5 text-primary w-[20%] bg-white dark:bg-slate-900 border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>
 				<Modal showModal={showCreateProjectModal} setShowModal={setShowCreateProjectModal}>
 					<div className='flex flex-col gap-y-4'>
-						<Input placeholder='Project name' onChange={(e) => setProjectName(e.target.value)} disabled={isCreatingProject} />
+						<Input placeholder='Project name' onChange={(e) => setProjectName(e.target.value)} onKeyDown={handleKeyDown} disabled={isCreatingProject} />
 						<Button onClick={onCreateProject} size='sm' variant='default' disabled={isCreatingProject} >{isCreatingProject ? "Creating your project..." : "Create Project"}</Button>
+
+						{nameExists && (
+							<p className='flex flex-row items-center justify-center text-xs'>
+								<TriangleAlert color="#f10909" size="15px" />
+								&nbsp;
+								The project name already exists.
+							</p>
+						)}
+
 					</div>
 				</Modal>
 				<div className="flex flex-col flex-start">
