@@ -7,6 +7,7 @@ import { LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/backend/user";
+import { UserType } from "@/types/userType";
 
 export const Login = () => {
 
@@ -17,7 +18,8 @@ export const Login = () => {
     const signIn = async () => {
         try {
             const result = await signInWithPopup(auth, provider);
-            
+            await loginUser();
+
             //router.push('/')
         } catch (error) {
             console.log(error);
@@ -32,7 +34,7 @@ export const Login = () => {
         });
         return () => unsubscribe();
     }, [user])
-    
+
     return (
         <div className="flex items-center justify-center h-[100vh]">
             {isLoading && <p>Loading...</p>}
@@ -43,7 +45,7 @@ export const Login = () => {
                 variant="default"
                 onClick={signIn}
             >
-                <LogIn className="w-4 h-4 mr-2"/>
+                <LogIn className="w-4 h-4 mr-2" />
                 Login
             </Button>}
         </div>

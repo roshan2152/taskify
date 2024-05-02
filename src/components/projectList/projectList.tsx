@@ -1,7 +1,9 @@
 "use client"
 import { ProjectType } from "@/types/projectType"
 import { ChevronRight, ChevronDown, PanelsTopLeft } from "lucide-react"
-import { useState } from "react";
+import React, { useState } from "react";
+import { useRouter } from 'next/navigation'
+import { MouseEvent } from 'react'; // Assuming you are using React
 
 interface ProjectListProps {
     projects: ProjectType[],
@@ -10,9 +12,17 @@ interface ProjectListProps {
 export const ProjectList = ({ projects }: ProjectListProps) => {
 
     const [expanded, setExpanded] = useState<boolean>(false);
-    const handleExpand = () => {
-        setExpanded(!expanded);
-    }
+    const handleExpand = () => setExpanded(!expanded);
+    const router = useRouter();
+
+    // console.log(projects);
+
+    const showProject = (e:any, id: string) => {
+        // console.log(id)
+        e.preventDefault();
+        router.push(id);
+    };
+
 
     return (
         <>
@@ -23,12 +33,12 @@ export const ProjectList = ({ projects }: ProjectListProps) => {
             {
                 expanded && (projects.length == 0 ? (<p className="pl-[35px] m-2 text-sm text-slate-500">No Projects found</p>)
                     : (
-                        projects.map((project) => <div key={project.id}>
-                            <div className="flex flex-row gap-2 items-center pl-[25px] m-2" role="button">
+                        projects.map((project) => (
+                            <div key={project.id} onClick={(e) => showProject(e, project.id)} className="flex flex-row gap-2 items-center pl-[25px] m-2" role="button">
                                 <p className="flex flex-start  text-sm font-bold text-slate-500 bg-slate-200 p-2 overflow-hidden w-full text-center rounded-md hover:text-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-white">
-                                    <PanelsTopLeft className="h-4 w-4 mr-2" />{project.projectName}</p>
-                            </div>
-                        </div>)
+                                    <PanelsTopLeft className="h-4 w-4" />{project.projectName}</p>
+                            </div>)
+                        )
                     )
                 )
             }

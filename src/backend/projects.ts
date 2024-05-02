@@ -5,7 +5,7 @@ export const createProject = (name: string, userId: string | undefined) => {
     return new Promise(async (resolve, reject) => {
 
         const docRef = doc(collection(db, "projects"));
-
+        console.log(userId)
         const data = {
             projectName: name,
             members: [],        // will contain users id {email: abc@gmail.com, permission: 0}

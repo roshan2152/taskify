@@ -1,12 +1,14 @@
+import Board from '@/components/board/boards';
+import { BoardType } from '@/types/boardType';
 import { getFirestore, getDoc, doc, setDoc, serverTimestamp, runTransaction, deleteDoc, arrayUnion, updateDoc, collection } from 'firebase/firestore'
 export const db = getFirestore();
 
-export const addBoard = (projectId: string, userData: any) => {
+export const addBoard = (projectId: string, boardName: string) => {
     return new Promise(async (resolve, reject) => {
         const docRef = doc(collection(db, "boards"));
 
         const data = {
-            boardName: userData.name,
+            boardName,
             columns: [{
                 columnName: 'Todo',
                 tickets: [],
@@ -117,3 +119,57 @@ export const addColumn = (boardId: string, columnName: string) => {
         }
     });
 };
+
+export const getBoard = (boardId: string) => {
+    return new Promise(async (resolve, reject) => {
+
+        try {
+            const docRef = doc(db, "boards", boardId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                resolve({ id: docRef.id, ...docSnap.data() });
+            }
+
+        } catch (err) {
+            console.log(err);
+            reject({ message: 'Error' });
+        }
+    });
+}
+
+export const getBoards = (boards: string[]) => {
+    return new Promise(async (resolve, reject) => {
+
+        try {
+            let resArray: BoardType[] = [];
+            
+            boards.map(async (boardId: string) => {
+
+                const docRef = doc(db, "boards", boardId);
+                const docSnap = await getDoc(docRef);
+
+
+                if (docSnap.exists()) {
+                    // console.log( docSnap.data())
+                    resArray.push({
+                        id: docRef.id,
+                        boardName: docSnap.data().boardName,
+                        columns: docSnap.data().columns
+                    });
+
+                    const data = docSnap.data();
+                    console.log(data);
+
+                    resolve(resArray);
+                }
+            });
+            resolve(resArray);
+
+
+        } catch (err) {
+            console.log(err);
+            reject({ message: 'Error' });
+        }
+    });
+}

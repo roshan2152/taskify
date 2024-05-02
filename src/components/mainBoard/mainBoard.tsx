@@ -44,8 +44,11 @@ export default function MainBoard() {
         useState<UniqueIdentifier>();
     const [containerName, setContainerName] = useState('');
     const [itemName, setItemName] = useState('');
-    const [showAddContainerModal, setShowAddContainerModal] = useState(false);
-    const [showAddItemModal, setShowAddItemModal] = useState(false);
+    const [showAddContainerModal, setShowAddContainerModal] = React.useState<boolean>(false);
+    const [showAddItemModal, setShowAddItemModal] = React.useState<boolean>(false);
+
+    const [isCreating, setIsCreating] = React.useState<boolean>(false);
+
 
     const onAddContainer = async () => {
         if (!containerName) return;
@@ -60,13 +63,16 @@ export default function MainBoard() {
         ]);
 
         try {
+            setIsCreating(true);
             const boardId = '';
             await addColumn(boardId, containerName);
         } catch (err) {
             console.log('Error in adding column', err)
+        } finally {
+            setIsCreating(false);
+            setContainerName('');
+            setShowAddContainerModal(false);
         }
-        setContainerName('');
-        setShowAddContainerModal(false);
     };
 
     const onAddItem = async () => {
@@ -253,7 +259,7 @@ export default function MainBoard() {
                         value={containerName}
                         onChange={(e) => setContainerName(e.target.value)}
                     />
-                    <Button onClick={onAddContainer}>Add container</Button>
+                    <Button onClick={onAddContainer} disabled={isCreating}>Add container</Button>
                 </div>
             </Modal>
             {/*Item Modal */}
@@ -304,7 +310,7 @@ export default function MainBoard() {
                         ))}
                     </SortableContext>
                     <Button onClick={() => setShowAddContainerModal(true)} className='rounded-full' size="sm">
-                        <Plus className='h-3 w-3'/>
+                        <Plus className='h-3 w-3' />
                     </Button>
 
                     <DragOverlay adjustScale={false}>
