@@ -1,4 +1,6 @@
 import { Login } from "@/components/login";
+import { getUser, loginUser } from "@/backend/user";
+import { UserType } from "@/types/userType";
 
 const Landing = () => {
 
@@ -6,6 +8,6 @@ const Landing = () => {
         <>  
             <Login />
         </>
-    )
-}
+    );
+};
 export default Landing

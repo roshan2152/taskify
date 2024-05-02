@@ -1,20 +1,20 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { User,onAuthStateChanged, signInWithPopup } from "firebase/auth";
+import { User,onAuthStateChanged} from "firebase/auth";
 
 import {
 	CirclePlus,
 	Columns3,
 	BadgeAlert,
 } from 'lucide-react'
-import { Project } from '@/types/projectType'
+import { ProjectType } from '@/types/projectType'
 import Modal from '../Modal/modal';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { auth } from '@/dbConfig/auth';
 import { getProjects,createProject } from "@/backend/projects";
 import { ProjectList } from '../projectList/projectList';
+import { auth } from '@/dbConfig/auth';
 
 
 export default function Sidebar() {
@@ -25,19 +25,16 @@ export default function Sidebar() {
 	const [isLoading , setIsLoading] = useState<boolean>(true);
 	const [isCreatingProject,setIsCreatingProject] = useState<boolean>(false);
 
-	const [projects,setProjects] = useState<Project[]>([]);
+	const [projects,setProjects] = useState<ProjectType[]>([]);
 
 	const onCreateProject = async () => {
 		setIsCreatingProject(true);
 		console.log(user?.uid)
-		const project = {
-			id: user?.uid,
-			name: projectName,
-		}
 		
-		const newProject = await createProject(project, user?.uid)
+	
+		const newProject = await createProject(projectName, user?.uid)
 		console.log(newProject);
-		setProjects([...projects,newProject as Project])
+		setProjects([...projects,newProject as ProjectType])
 		setIsCreatingProject(false);
 		setShowCreateProjectModal(false);	
 	}
