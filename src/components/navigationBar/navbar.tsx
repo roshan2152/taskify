@@ -1,6 +1,5 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
 import { LogOut } from 'lucide-react';
 import { ModeToggle } from '../mode-toggle';
 import { ListTodo } from 'lucide-react';
@@ -10,25 +9,17 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { User, onAuthStateChanged, signOut,signInWithPopup } from 'firebase/auth';
+import { signOut,signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '@/dbConfig/auth';
 import { Button } from '../ui/button';
 import {useRouter} from 'next/navigation'
+import { useAuth } from '@/context/authContext';
 
 
 function Navbar() {
 
     const  router = useRouter();
-    const [user,setUser] = useState<User | null>(null);
-    const [isLoading,setIsLoading] = useState<boolean>(true);
-
-    useEffect( () => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setIsLoading(false);
-        });
-        return () => unsubscribe();
-    },[user])
+    const {user,isLoading} = useAuth();
 
     const signIn = async () => {
         try {
