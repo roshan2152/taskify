@@ -1,13 +1,11 @@
 import { Login } from "@/components/login";
-import { getUser, loginUser } from "@/backend/user";
-import { UserType } from "@/types/userType";
 
-const Landing = () => {
+const main = () => {
 
     return (
-        <>  
+        <div className="w-full">
             <Login />
-        </>
+        </div>
     );
 };
-export default Landing
+export default main

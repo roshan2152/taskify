@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from 'react';
-import { User, onAuthStateChanged } from "firebase/auth";
 
 import {
 	CirclePlus,
@@ -15,9 +14,9 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { createProject, getProject } from "@/backend/projects";
 import { ProjectList } from '../projectList/projectList';
-import { auth } from '@/dbConfig/auth';
 import { UserType } from '@/types/userType';
 import { getUser } from '@/backend/user';
+import { useAuth } from '@/context/authContext';
 
 
 export default function Sidebar() {
@@ -25,11 +24,11 @@ export default function Sidebar() {
 	const [showCreateProjectModal, setShowCreateProjectModal] = useState<boolean>(false);
 	const [projectName, setProjectName] = useState<string>('');
 
-	const [user, setUser] = useState<User | null>(null);
+	const { user, isLoading } = useAuth();
+
 	const [userData, setUserData] = useState<UserType | null>(null);
 	const [projects, setProjects] = useState<ProjectType[]>([]);
 
-	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [isCreatingProject, setIsCreatingProject] = useState<boolean>(false);
 	const [nameExists, setNameExists] = useState<boolean>(false);
 
@@ -87,17 +86,14 @@ export default function Sidebar() {
 	};
 	
 
-	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-			setUser(currentUser);
-			setIsLoading(false);
-		});
-		return () => unsubscribe();
-	}, [user])
-
 	return (
 		<>
-			<div className={`${!user && `hidden`} flex flex-col justify-between px-5 text-primary w-[20%] bg-white dark:bg-slate-900 border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>
+			{isLoading && (<div className={`flex flex-col justify-between px-5 text-primary w-[20%] bg-white dark:bg-slate-900 border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>Loading...</div>)}
+
+			{!isLoading && !user && <div className={`flex flex-col justify-between px-5 text-primary w-[20%] bg-white dark:bg-slate-900 border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>Please Login</div>}
+
+			{!isLoading && user && (
+			<div className={`flex flex-col justify-between px-5 text-primary w-[20%] bg-white dark:bg-slate-900 border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>
 				<Modal showModal={showCreateProjectModal} setShowModal={setShowCreateProjectModal}>
 					<div className='flex flex-col gap-y-4'>
 						<Input placeholder='Project name' onChange={(e) => setProjectName(e.target.value)} onKeyDown={handleKeyDown} disabled={isCreatingProject} />
@@ -151,7 +147,7 @@ export default function Sidebar() {
 					<p className='text-[#44556f] text-xs'>You are in a team-managed project</p>
 					<button className='text-[#44556f] text-xs font-semibold'>Learn more</button>
 				</div>
-			</div>
+			</div>)}
 		</>
 	)
 }
