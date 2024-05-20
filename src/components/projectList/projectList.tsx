@@ -3,7 +3,7 @@ import { ProjectType } from "@/types/projectType"
 import { ChevronRight, ChevronDown, PanelsTopLeft } from "lucide-react"
 import React, { useState } from "react";
 import { useRouter } from 'next/navigation'
-import { MouseEvent } from 'react'; // Assuming you are using React
+import Link from "next/link";
 
 interface ProjectListProps {
     projects: ProjectType[],
@@ -17,10 +17,9 @@ export const ProjectList = ({ projects }: ProjectListProps) => {
 
     // console.log(projects);
 
-    const showProject = (e:any, id: string) => {
-        // console.log(id)
+    const showProject = (e: any, id: string) => {
         e.preventDefault();
-        router.push(id);
+        router.push(`/${id}`);
     };
 
 
@@ -33,9 +32,8 @@ export const ProjectList = ({ projects }: ProjectListProps) => {
                 Your Projects
             </div>
             <div
-                className={`transition-max-height duration-500 ease-in-out overflow-hidden ${
-                    expanded ? "max-h-screen" : "max-h-0"
-                }`}
+                className={`transition-max-height duration-500 ease-in-out overflow-hidden ${expanded ? "max-h-screen" : "max-h-0"
+                    }`}
             >
                 {projects.length === 0 ? (
                     <p className="pl-[35px] m-2 text-sm text-slate-500">

@@ -1,6 +1,7 @@
 import { getFirestore, getDoc, doc, setDoc, serverTimestamp, deleteDoc, updateDoc, arrayUnion, collection } from 'firebase/firestore'
 import { auth } from '../dbConfig/auth'
-export const db = getFirestore();
+import { db } from '@/dbConfig/dbConfig';
+
 
 
 export const addTicket = (boardId: string, columnIndex: number, ticketName: string) => {
@@ -24,11 +25,11 @@ export const addTicket = (boardId: string, columnIndex: number, ticketName: stri
             const docSnap = await getDoc(boardRef);
 
             if (docSnap.exists()) {
-                const currentTickets = docSnap.data()?.columns[columnIndex].tickets.arrayField || [];
-                const updateTickets = arrayUnion(currentTickets, docRef.id);
+                const containers = docSnap.data().containers;
+                containers[columnIndex].items.unshift(docRef.id);
 
                 updateDoc(boardRef, {
-                    [`columns[${columnIndex}].tickets`]: updateTickets,
+                    containers: containers,
                 });
                 console.log('ticket added successfully')
                 resolve({ ...data, ticketId: docRef.id });

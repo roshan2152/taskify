@@ -1,6 +1,7 @@
 import { getFirestore, getDoc, doc, setDoc, serverTimestamp, runTransaction, collection } from 'firebase/firestore'
 import { auth } from '../dbConfig/auth'
-export const db = getFirestore();
+import { db } from '@/dbConfig/dbConfig';
+
 
 
 export const addComment = (userId: string, ticketId: string, commentData:any) => {

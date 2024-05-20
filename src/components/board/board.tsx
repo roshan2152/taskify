@@ -1,16 +1,39 @@
+'use client'
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import MainBoard from '../mainBoard/mainBoard';
-import { updateBoard } from '@/backend/boards';
+import { getBoard, updateBoard } from '@/backend/boards';
 import { ProjectType } from '@/types/projectType';
+import { BoardType } from '@/types/boardType';
 
 interface BoardProps {
-    projects: ProjectType[];
-    setProjects: React.Dispatch<React.SetStateAction<ProjectType[]>>;
+    project: ProjectType | null;
+    // setProjects: React.Dispatch<React.SetStateAction<ProjectType[]>>;
 }
 
-export default function Board({ projects, setProjects }: BoardProps) {
+export default function Board({ project }: BoardProps) {
+
+    const [board, setBoard] = useState<BoardType | null>(null);
+
+    const getProjectBoard = async () => {
+        if (project) {
+            const res = await getBoard(project?.boards[0]) as BoardType;
+            setBoard(res);
+        }
+    }
+    console.log(board);
+
+    useEffect(() => {
+        getProjectBoard();
+    }, [project])
+
+    // console.log(projectBoards);
+    console.log(project);
+    console.log(project?.boards[0]);
+
+
     const [boardName, setBoardName] = useState<string>("BoardName");
     const [boardNameisEditable, setBoardNameisEditable] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -56,8 +79,8 @@ export default function Board({ projects, setProjects }: BoardProps) {
     return (
         <>
             {
-                projects.length > 0 ? (
-                    <div className='flex flex-col w-[80vw] h-full px-5'>
+                project ? (
+                    <div className='flex flex-col w-[80vw] h-full mt-10 px-5'>
                         <div>
                             <div className='text-[#44556f] dark:text-[#b6c2cf] text-sm '>
                                 projectName / boardName
@@ -86,7 +109,7 @@ export default function Board({ projects, setProjects }: BoardProps) {
                                 placeholder='Search this board'
                             />
                         </div>
-                        <MainBoard />
+                        <MainBoard board={ board} />
                     </div>
                 ) : (
                     <div className='flex flex-col w-[80vw] h-full px-5'>

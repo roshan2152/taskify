@@ -17,6 +17,8 @@ import { ProjectList } from '../projectList/projectList';
 import { UserType } from '@/types/userType';
 import { getUser } from '@/backend/user';
 import { useAuth } from '@/context/authContext';
+import { addBoard } from '@/backend/boards';
+import { BoardType } from '@/types/boardType';
 
 
 export default function Sidebar() {
@@ -69,6 +71,9 @@ export default function Sidebar() {
 
 			const newProject = await createProject(projectName, user?.uid) as ProjectType;
 			console.log(newProject);
+
+			const board = await addBoard(newProject.id, "board1")as BoardType;
+			
 			if (nameExists) setNameExists(false);
 			setProjects([...projects, newProject]);
 			setIsCreatingProject(false);

@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+'use client';
+import React, { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -26,6 +27,7 @@ import { Input } from '../ui/input';
 import { addColumn } from '@/backend/boards';
 import { addTicket } from '@/backend/tickets';
 import { Plus, PlusCircle } from 'lucide-react';
+import { BoardType } from '@/types/boardType';
 
 type DNDType = {
     id: UniqueIdentifier;
@@ -36,7 +38,12 @@ type DNDType = {
     }[]
 }
 
-export default function MainBoard() {
+interface MainBoardProps {
+    board: BoardType | null;
+}
+
+export default function MainBoard({ board }: MainBoardProps) {
+    console.log(board)
 
     const [containers, setContainers] = useState<DNDType[]>([]);
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -50,22 +57,39 @@ export default function MainBoard() {
     const [isCreating, setIsCreating] = React.useState<boolean>(false);
 
 
+    const getData = () => {
+        if (board?.containers) {
+            console.log(3242)
+            setContainers(board?.containers)
+        }
+    }
+
+    useEffect(() => {
+        console.log(containers);
+        getData();
+    }, [board?.containers])
+
+    console.log(containers)
+
     const onAddContainer = async () => {
         if (!containerName) return;
-        const id = `container-${uuidv4()}`;
-        setContainers([
-            ...containers,
-            {
-                id,
-                title: containerName,
-                items: [],
-            },
-        ]);
 
         try {
-            setIsCreating(true);
-            const boardId = '';
-            await addColumn(boardId, containerName);
+            if (board) {
+                setIsCreating(true);
+
+                const columnId = uuidv4();
+                await addColumn(board.id, containerName, columnId) as DNDType;
+
+                setContainers([
+                    ...containers,
+                    {
+                        id: columnId,
+                        title: containerName,
+                        items: [],
+                    },
+                ]);
+            }
         } catch (err) {
             console.log('Error in adding column', err)
         } finally {
@@ -76,21 +100,31 @@ export default function MainBoard() {
     };
 
     const onAddItem = async () => {
-        if (!itemName) return;
+        if (!itemName)
+            return;
+
         const id = `item-${uuidv4()}`;
         const container = containers.find((item) => item.id === currentContainerId);
-        if (!container) return;
+
+        if (!container)
+            return;
+        console.log(container)
+        
         container.items.push({
             id,
             title: itemName,
         });
+        
+        console.log(container)
+
         setContainers([...containers]);
 
         try {
+            const columnIndex = containers?.findIndex((item: any) => item.title === container.title);
             const boardId = '';
-            const columnIndex = 0;
+            const columnName = container.title;
 
-            await addTicket(boardId, columnIndex, itemName);
+            await addTicket(board?.id!, columnIndex, itemName);
         } catch (err) {
             console.log('Error in adding ticket', err);
         }
@@ -259,7 +293,7 @@ export default function MainBoard() {
                         value={containerName}
                         onChange={(e) => setContainerName(e.target.value)}
                     />
-                    <Button onClick={onAddContainer} disabled={isCreating}>Add container</Button>
+                    <Button onClick={onAddContainer}> Add container </Button>
                 </div>
             </Modal>
             {/*Item Modal */}
@@ -285,8 +319,8 @@ export default function MainBoard() {
                     onDragMove={handleDragMove}
                 >
 
-                    <SortableContext items={containers.map((i) => i.id)}>
-                        {containers.map((container) => (
+                    <SortableContext items={containers && containers.map((i) => i.id)}>
+                        {containers && containers.map((container) => (
                             <div className="h-full" key={container.id}>
                                 <Container
                                     key={container.id}
