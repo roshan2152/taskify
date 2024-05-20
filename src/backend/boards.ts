@@ -1,7 +1,7 @@
-import Board from '@/components/board/boards';
+import { db } from '@/dbConfig/dbConfig';
 import { BoardType } from '@/types/boardType';
 import { getFirestore, getDoc, doc, setDoc, serverTimestamp, runTransaction, deleteDoc, arrayUnion, updateDoc, collection } from 'firebase/firestore'
-export const db = getFirestore();
+import { v4 as uuidv4 } from 'uuid';
 
 export const addBoard = (projectId: string, boardName: string) => {
     return new Promise(async (resolve, reject) => {
@@ -9,18 +9,21 @@ export const addBoard = (projectId: string, boardName: string) => {
 
         const data = {
             boardName,
-            columns: [{
-                columnName: 'Todo',
-                tickets: [],
+            containers: [{
+                id: uuidv4(),
+                title: 'Todo',
+                items: [],
             },
             {
-                columnName: 'Inprogress',
-                tickets: [],
+                id: uuidv4(),
+                title: 'Inprogress',
+                items: [],
             },
             {
-                columnName: 'Done',
-                tickets: [],
-            },],        // will contain users id {columnName: abc, ticketsId: []}
+                id: uuidv4(),
+                title: 'Done',
+                items: [],
+            },],        // will contain users id {title: abc, ticketsId: []}
         };
         try {
             await setDoc(docRef, data);
@@ -29,11 +32,11 @@ export const addBoard = (projectId: string, boardName: string) => {
             const project = await getDoc(projectRef);
 
             if (project.exists()) {
-                await updateDoc(docRef, {
+                await updateDoc(projectRef, {
                     boards: arrayUnion(docRef.id),
                 });
-
-                resolve({ message: 'success', ...data, id: docRef.id });
+                resolve({ ...data, id: docRef.id });
+                console.log('Board added for project' + projectId);
             } else {
                 console.error("Document does not exist.");
                 reject({ message: 'Error!' });
@@ -67,7 +70,7 @@ export const deleteBoard = (boardId: string, projectId: string) => {
                         boards: updatedArray
                     });
 
-                    resolve({ message: 'success', id: docRef.id });
+                    resolve({ id: docRef.id });
                 } else {
                     // console.error("Document does not exist.");
                     reject({ message: 'Error!' });
@@ -98,20 +101,23 @@ export const updateBoard = (boardId: string, boardName: string) => {
     });
 };
 
-export const addColumn = (boardId: string, columnName: string) => {
+export const addColumn = (boardId: string, title: string, columnId: string) => {
     return new Promise(async (resolve, reject) => {
-        const docRef = doc(db, "boards");
+        const docRef = doc(db, "boards", boardId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
             try {
                 await updateDoc(docRef, {
-                    columns: arrayUnion(...[{
-                        columnName: columnName,
-                        tickets: [],
-                    }]),
+                    containers: arrayUnion({
+                        id: columnId,
+                        title: title,
+                        items: [],
+                    }),
                 });
+                // console.log(docSnap.data());
                 resolve({ message: 'success' });
+                console.log('Added column succesfully!')
             } catch (err) {
                 console.log('Error in adding new column', err);
                 reject({ message: 'Error' });
@@ -143,7 +149,7 @@ export const getBoards = (boards: string[]) => {
 
         try {
             let resArray: BoardType[] = [];
-            
+
             boards.map(async (boardId: string) => {
 
                 const docRef = doc(db, "boards", boardId);
@@ -155,7 +161,7 @@ export const getBoards = (boards: string[]) => {
                     resArray.push({
                         id: docRef.id,
                         boardName: docSnap.data().boardName,
-                        columns: docSnap.data().columns
+                        containers: docSnap.data().containers
                     });
 
                     const data = docSnap.data();
@@ -164,8 +170,6 @@ export const getBoards = (boards: string[]) => {
                     resolve(resArray);
                 }
             });
-            resolve(resArray);
-
 
         } catch (err) {
             console.log(err);

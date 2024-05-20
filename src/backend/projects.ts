@@ -1,5 +1,6 @@
+import { db } from '@/dbConfig/dbConfig';
 import { getFirestore, getDoc, doc, setDoc, serverTimestamp, updateDoc, arrayUnion, collection, } from 'firebase/firestore'
-export const db = getFirestore();
+
 
 export const createProject = (name: string, userId: string | undefined) => {
     return new Promise(async (resolve, reject) => {
@@ -52,7 +53,7 @@ export const getProject = (projectId: string) => {
 
         } catch (err) {
             console.log(err);
-            reject({ message: 'Error' });
+            reject({ message: 'Error - project does not exists' });
         }
     });
 };

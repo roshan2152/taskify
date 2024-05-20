@@ -2,7 +2,7 @@
 import { getFirestore, getDoc, doc, setDoc, serverTimestamp, runTransaction } from 'firebase/firestore'
 import { auth } from '../dbConfig/auth'
 import { onAuthStateChanged } from 'firebase/auth';
-export const db = getFirestore();
+import { db } from '@/dbConfig/dbConfig';
 
 export const loginUser = async () => {
     return new Promise(async (resolve, reject) => {
