@@ -1,5 +1,5 @@
 
-import { getFirestore, getDoc, doc, setDoc, serverTimestamp, runTransaction } from 'firebase/firestore'
+import { getDoc, doc, setDoc, serverTimestamp, runTransaction } from 'firebase/firestore'
 import { auth } from '../dbConfig/auth'
 import { onAuthStateChanged } from 'firebase/auth';
 import { db } from '@/dbConfig/dbConfig';
@@ -19,7 +19,6 @@ export const loginUser = async () => {
                         uid: auth.currentUser.uid,
                         email: auth.currentUser.email,
                         name: auth.currentUser.displayName,
-                        projects: [],
                     };
                     await setDoc(docRef, data);
                     resolve(data);

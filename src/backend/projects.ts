@@ -1,38 +1,22 @@
 import { db } from '@/dbConfig/dbConfig';
-import { getFirestore, getDoc, doc, setDoc, serverTimestamp, updateDoc, arrayUnion, collection, } from 'firebase/firestore'
+import { getDoc, doc, setDoc, serverTimestamp, updateDoc, arrayUnion, collection, query, where, getDocs, } from 'firebase/firestore'
+import { addBoard } from './boards';
 
 
 export const createProject = (name: string, userId: string | undefined) => {
     return new Promise(async (resolve, reject) => {
 
-        const docRef = doc(collection(db, "projects"));
-        console.log(userId)
-        const data = {
-            projectName: name,
-            members: [],        // will contain users id {email: abc@gmail.com, permission: 0}
-            boards: [],
-        };
-
         try {
+            const docRef = doc(collection(db, "projects"));
+            const data = {
+                projectName: name,
+                members: [],        // will contain users id {email: abc@gmail.com, permission: 0}
+                boards: [],
+                userId: userId
+            };
             await setDoc(docRef, data);
-
-            if (userId !== undefined) {
-                const userDocRef = doc(db, "user", userId);
-                const docSnap = await getDoc(userDocRef);
-
-                if (docSnap.exists()) {
-                    await updateDoc(userDocRef, {
-                        projects: arrayUnion(docRef.id),
-                    });
-
-                    console.log("project id added to array successfully.");
-                    resolve({ ...data, id: docRef.id });
-                } else {
-                    console.error("Error in creating project.");
-                    reject({ message: 'Error!' });
-                }
-            }
-
+            await addBoard(docRef.id,"Board1");
+            resolve({id:docRef.id,...data})
         } catch (err) {
             reject(err);
         }
@@ -48,12 +32,13 @@ export const getProject = (projectId: string) => {
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                resolve({ id: docRef.id, ...docSnap.data() });
+                resolve(docSnap.data());
             }
 
-        } catch (err) {
-            console.log(err);
             reject({ message: 'Error - project does not exists' });
+
+        } catch (err) {
+           reject({message:"something went wrong while getting project"})
         }
     });
 };
@@ -103,18 +88,21 @@ export const addMember = (projectId: any, memberData: any) => {
     });
 };
 
-export const getProjects = (userId: any) => {
-    return new Promise(async (resolve, reject) => {
+export const getProjectsByUserId = (userId : string | undefined) => {
+    return new Promise(async (resolve,reject) => {
+        try {
+            const projectRef = collection(db, "projects"); // get the reference of the collection
+            const q = query(projectRef, where("userId","==",userId));
 
-        const userDocRef = doc(db, "user", userId);
-        const docSnap = await getDoc(userDocRef);
+            const querySnapshot = await getDocs(q);
 
-        if (docSnap.exists()) {
-            const projects = docSnap.data()?.projects || [];
-            resolve(projects);
-        } else {
-            console.error("Document does not exist.");
-            reject({ message: 'Error!' });
+            const projects = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+           resolve(projects);
+        } catch (e) {
+            reject({message : e});
         }
-    });
-}
+})}

@@ -1,8 +1,9 @@
 export type ProjectId = string;
 
 export type ProjectType = {
-  id: string;
+  id: string,
   projectName: string,
   members: string[],        
   boards: string[],
+  userId: string
 }

@@ -12,13 +12,10 @@ import { ProjectType } from '@/types/projectType'
 import Modal from '../Modal/modal';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { createProject, getProject } from "@/backend/projects";
+import { createProject, getProject, getProjectsByUserId } from "@/backend/projects";
 import { ProjectList } from '../projectList/projectList';
-import { UserType } from '@/types/userType';
-import { getUser } from '@/backend/user';
 import { useAuth } from '@/context/authContext';
-import { addBoard } from '@/backend/boards';
-import { BoardType } from '@/types/boardType';
+
 
 
 export default function Sidebar() {
@@ -27,35 +24,21 @@ export default function Sidebar() {
 	const [projectName, setProjectName] = useState<string>('');
 
 	const { user, isLoading } = useAuth();
-
-	const [userData, setUserData] = useState<UserType | null>(null);
 	const [projects, setProjects] = useState<ProjectType[]>([]);
 
 	const [isCreatingProject, setIsCreatingProject] = useState<boolean>(false);
 	const [nameExists, setNameExists] = useState<boolean>(false);
 
-	const getUserData = async () => {
-		const res = await getUser() as UserType;
-		setUserData(res);
-	};
-
-	const getProjects = async () => {
-		if (userData && userData.projects) {
-			const resultArray = userData?.projects.map(async (id: string) => await getProject(id) as ProjectType);
-			const newArray = await Promise.all(resultArray);
-			setProjects(newArray);
-		}
-	};
+	const getUserProjects = async () => {
+		const userProjects = await getProjectsByUserId(user?.uid) as ProjectType[];
+		setProjects(userProjects)
+	}
 
 	useEffect(() => {
-		getUserData();
-	}, []);
-
-	useEffect(() => {
-		if (userData && userData.projects) {
-			getProjects();
+		if (user) {
+			getUserProjects();
 		}
-	}, [userData?.projects]);
+	}, [user]);
 
 	const onCreateProject = async () => {
 		setIsCreatingProject(true);
@@ -70,17 +53,14 @@ export default function Sidebar() {
 			}
 
 			const newProject = await createProject(projectName, user?.uid) as ProjectType;
-			console.log(newProject);
 
-			const board = await addBoard(newProject.id, "board1")as BoardType;
-			
-			if (nameExists) setNameExists(false);
 			setProjects([...projects, newProject]);
+			if(nameExists) setNameExists(false);
 			setIsCreatingProject(false);
-			setShowCreateProjectModal(false);
+			setShowCreateProjectModal(false);	
 		} catch (err) {
 			console.log(err);
-		}
+		} 
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -98,7 +78,7 @@ export default function Sidebar() {
 			{!isLoading && !user && <div className={`flex flex-col justify-between px-5 text-primary w-[20%] bg-white dark:bg-slate-900 border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>Please Login</div>}
 
 			{!isLoading && user && (
-			<div className={`flex flex-col justify-between px-5 text-primary w-[20%] bg-white dark:bg-slate-900 border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16`}>
+			<div className={`flex flex-col justify-between px-5 text-primary w-[20%] bg-white dark:bg-slate-900 border-r-2 border-slate-300 dark:border-[#282e34] h-full pt-16 overflow-auto`}>
 				<Modal showModal={showCreateProjectModal} setShowModal={setShowCreateProjectModal}>
 					<div className='flex flex-col gap-y-4'>
 						<Input placeholder='Project name' onChange={(e) => setProjectName(e.target.value)} onKeyDown={handleKeyDown} disabled={isCreatingProject} />
@@ -148,7 +128,7 @@ export default function Sidebar() {
 
 					</div>
 				</div>
-				<div className='flex flex-col justify-center items-center pb-3'>
+				<div className='flex flex-col justify-center items-center pb-3 mt-8'>
 					<p className='text-[#44556f] text-xs'>You are in a team-managed project</p>
 					<button className='text-[#44556f] text-xs font-semibold'>Learn more</button>
 				</div>

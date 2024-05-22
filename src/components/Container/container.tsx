@@ -15,6 +15,7 @@ const Container = ({
     const {
         attributes,
         setNodeRef,
+        
         transform,
         transition,
         isDragging,
@@ -28,26 +29,29 @@ const Container = ({
     return (
         <div
             {...attributes}
+            // {...listeners}
             ref={setNodeRef}
             style={{
                 transition,
                 transform: CSS.Translate.toString(transform),
             }}
             className={clsx(
-                'w-[17rem] h-full p-4 bg-gray-100 dark:bg-[#1F1F1F] dark:text-white rounded-xl flex flex-col gap-y-4 max-h-[60vh] overflow-y-auto',
+                'w-[17rem] relative h-full bg-gray-100 dark:bg-[#1F1F1F] dark:text-white rounded-xl flex flex-col gap-y-4 max-h-[68vh] overflow-y-auto',
                 isDragging && 'opacity-50',
             )}
         >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between sticky top-0 bg-slate-200 w-full">
                 <div className="flex flex-col gap-y-1">
-                    <h1 className="text-gray-800 text-xl">{title}</h1>
+                    <h1 className="text-gray-800 text-xl p-2">{title}</h1>
                     <p className="text-gray-400 text-sm">{description}</p>
                 </div>
             </div>
 
-            {children}
+            <div className='pt-2 mx-1'>
+                {children}
+            </div>
             
-            <Button variant="ghost" onClick={onAddItem}>
+            <Button variant="ghost" onClick={onAddItem} className='sticky bottom-0 bg-slate-200'>
                 +  Create issue
             </Button>
         </div>

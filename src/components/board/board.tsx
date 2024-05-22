@@ -19,57 +19,53 @@ export default function Board({ project }: BoardProps) {
 
     const getProjectBoard = async () => {
         if (project) {
-            const res = await getBoard(project?.boards[0]) as BoardType;
+            const res = await getBoard(project.boards[0]) as BoardType;
             setBoard(res);
+            setBoardName(res.boardName)
         }
     }
-    console.log(board);
+
 
     useEffect(() => {
         getProjectBoard();
     }, [project])
 
-    // console.log(projectBoards);
-    console.log(project);
-    console.log(project?.boards[0]);
 
 
     const [boardName, setBoardName] = useState<string>("BoardName");
     const [boardNameisEditable, setBoardNameisEditable] = useState<boolean>(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const toggleBoardNameEditable = () => {
-        setBoardNameisEditable(!boardNameisEditable);
-    };
 
-    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter') {
-            toggleBoardNameEditable();
-        }
-    };
+    const updateName = async () => {
+        try {
+            if(boardName.length==0 || boardName===board?.boardName)
+                    return;
 
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value.length <= 30) {
-            setBoardName(value);
-
-            const boardId = '';
-
-            try {
-                await updateBoard(boardId, boardName);
-            } catch (err) {
-                console.log(err);
-            }
-        }
-    };
-
-    const handleClickOutside = (event: MouseEvent) => {
-        if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+            await updateBoard(board?.id!, boardName);
             setBoardNameisEditable(false);
+        } catch(e){
+            console.log(e);
         }
+    }
+
+    const handleKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+       if(e.key === 'Enter')
+            updateName();
     };
+
+   
 
     useEffect(() => {
+
+        const handleClickOutside = (event: MouseEvent) => {
+
+            if (inputRef.current && !inputRef.current.contains(event.target as Node)){
+               setBoardNameisEditable(false)
+            }
+            
+        };
+
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -93,11 +89,12 @@ export default function Board({ project }: BoardProps) {
                                         ref={inputRef}
                                         type='text'
                                         value={boardName}
-                                        onChange={handleChange}
+                                        onChange={(e) => setBoardName(e.target.value)}
                                         onKeyDown={handleKeyPress}
+                                        placeholder='Enter board name...'
                                     />
                                 ) : (
-                                    <Button onClick={toggleBoardNameEditable} className='py-7 pr-3 pl-0 text-2xl font-semibold text-black dark:text-[#b6c2cf] dark:bg-transparent bg-white  hover:bg-[#f7f8f9] dark:hover:bg-[#313539]'>
+                                    <Button onClick={() => setBoardNameisEditable(true)} className='py-7 pr-3 pl-0 text-2xl font-semibold text-black dark:text-[#b6c2cf] dark:bg-transparent bg-white  hover:bg-[#f7f8f9] dark:hover:bg-[#313539]'>
                                         {boardName}
                                     </Button>
                                 )}
