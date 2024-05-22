@@ -1,5 +1,4 @@
-import { getFirestore, getDoc, doc, setDoc, serverTimestamp, runTransaction, collection } from 'firebase/firestore'
-import { auth } from '../dbConfig/auth'
+import {  getDoc, doc, setDoc, serverTimestamp,  collection } from 'firebase/firestore'
 import { db } from '@/dbConfig/dbConfig';
 
 

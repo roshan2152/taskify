@@ -1,9 +1,9 @@
 "use client"
-import { ProjectType } from "@/types/projectType"
 import { ChevronRight, ChevronDown, PanelsTopLeft } from "lucide-react"
 import React, { useState } from "react";
 import { useRouter } from 'next/navigation'
 import Link from "next/link";
+import { ProjectType } from "@/types";
 
 interface ProjectListProps {
     projects: ProjectType[],

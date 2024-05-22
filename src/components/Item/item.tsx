@@ -3,13 +3,27 @@ import { useSortable } from '@dnd-kit/sortable';
 import React from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
+import Modal from '../Modal/modal';
+import { Button } from '../ui/button';
+import { TicketType, itemType } from '@/types';
 
-type ItemsType = {
+// type ItemType = {
+//     id: UniqueIdentifier;
+//     ticketName: string;
+//     description: string;
+//     comments: string;
+//     assignee: '',
+//     reporter: '',
+//     createdAt: string,
+// };
+interface ItemsProps {  
+    ticket: TicketType; 
     id: UniqueIdentifier;
     title: string;
 };
 
-const Items = ({ id, title }: ItemsType) => {
+const Items = ({  id,title }: any) => {
+
     const {
         attributes,
         listeners,
@@ -25,7 +39,7 @@ const Items = ({ id, title }: ItemsType) => {
     });
 
     return (
-        <div
+        <div onClick={() => console.log(23432333333)}
             ref={setNodeRef}
             {...attributes}
             {...listeners}
@@ -38,7 +52,7 @@ const Items = ({ id, title }: ItemsType) => {
                 isDragging && 'opacity-50',
             )}
         >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between" onClick={() => console.log('fdsdfsadfs')}>
                 {title}
             </div>
         </div>

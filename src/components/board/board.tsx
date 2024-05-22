@@ -5,8 +5,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import MainBoard from '../mainBoard/mainBoard';
 import { getBoard, updateBoard } from '@/backend/boards';
-import { ProjectType } from '@/types/projectType';
-import { BoardType } from '@/types/boardType';
+import { BoardType, ProjectType } from '@/types';
 
 interface BoardProps {
     project: ProjectType | null;

@@ -25,18 +25,10 @@ import Modal from '@/components/Modal/modal';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { addColumn } from '@/backend/boards';
-import { addTicket } from '@/backend/tickets';
-import { Plus } from 'lucide-react';
-import { BoardType } from '@/types/boardType';
-
-type DNDType = {
-    id: UniqueIdentifier;
-    title: string;
-    items: {
-        id: UniqueIdentifier;
-        title: string
-    }[]
-}
+import { addTicket, getTicket, moveTicket } from '@/backend/tickets';
+import { Plus, TicketCheck } from 'lucide-react';
+import { BoardType, DNDType, TicketType, itemType } from '@/types';
+import { updateTicket } from '@/backend/comments';
 
 interface MainBoardProps {
     board: BoardType | null;
@@ -52,17 +44,43 @@ export default function MainBoard({ board }: MainBoardProps) {
     const [showAddContainerModal, setShowAddContainerModal] = useState<boolean>(false);
     const [showAddItemModal, setShowAddItemModal] = useState<boolean>(false);
     const [isCreating, setIsCreating] = useState<boolean>(false);
+    const [allTickets, setAllTickets] = useState<TicketType[]>([]);
 
 
     const getData = () => {
         if (board) {
             setContainers(board.containers)
         }
-    }
+    };
+
+    const getAllTickets = async () => {
+
+        if (containers.length > 0) {
+            const tickets = [] as UniqueIdentifier[];
+
+            containers.forEach((container) => {
+                if (container.items) {
+                    container.items.forEach((item) => tickets.push(item.id))
+                }
+            });
+
+            if (tickets.length > 0) {
+                console.log(tickets)
+
+                const promiseArray = tickets.map(async (id) => await getTicket(id as string));
+                const res = await Promise.all(promiseArray) as TicketType[];
+                setAllTickets(res);
+            }
+        }
+    };
 
     useEffect(() => {
         getData();
-    }, [board])
+    }, [board]);
+
+    useEffect(() => {
+        getAllTickets();
+    }, [containers]);
 
     const onAddContainer = async () => {
         if (!containerName) return;
@@ -93,24 +111,23 @@ export default function MainBoard({ board }: MainBoardProps) {
     };
 
     const onAddItem = async () => {
-        if(!itemName)
-                return;
-        
+        if (!itemName)
+            return;
+
         try {
-            if(board){
+            if (board) {
                 setIsCreating(true);
-                const ticketId = 'item'+uuidv4();
-                const res = await addTicket(board.id,currentContainerId!,itemName,ticketId) as {id:UniqueIdentifier,title:string};
+                const ticketId = 'item' + uuidv4();
+                const res = await addTicket(board.id, currentContainerId!, itemName, ticketId) as { id: UniqueIdentifier, title: string };
                 const newContainers = containers.map((container) => {
-                    if(container.id == currentContainerId)
+                    if (container.id == currentContainerId)
                         container.items.unshift(res)
                     return container;
                 })
-
                 setContainers(newContainers);
             }
-        } catch (e) {
-            console.log("error in adding ticket/item" , e);
+        } catch (err) {
+            console.log("error in adding ticket/item", err);
         } finally {
             setIsCreating(false);
             setItemName('');
@@ -128,7 +145,7 @@ export default function MainBoard({ board }: MainBoardProps) {
                 container.items.find((item) => item.id === id),
             );
         }
-    }
+    };
 
     const findItemTitle = (id: UniqueIdentifier | undefined) => {
         const container = findValueOfItems(id, 'item');
@@ -161,11 +178,14 @@ export default function MainBoard({ board }: MainBoardProps) {
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
         const { id } = active;
-        setActiveId(id);
-    }
+        setActiveId(id as string);
+    };
 
-    const handleDragMove = (event: DragMoveEvent) => {
+    const handleDragMove = async (event: DragMoveEvent) => {
         const { active, over } = event;
+
+        console.log(active.id)
+        let newColumnIndex;
 
         // Handle Items Sorting
         if (
@@ -183,20 +203,13 @@ export default function MainBoard({ board }: MainBoardProps) {
             if (!activeContainer || !overContainer) return;
 
             // Find the index of the active and over container
-            const activeContainerIndex = containers.findIndex(
-                (container) => container.id === activeContainer.id,
-            );
-            const overContainerIndex = containers.findIndex(
-                (container) => container.id === overContainer.id,
-            );
+            const activeContainerIndex = containers.findIndex((container) => container.id === activeContainer.id);
+            const overContainerIndex = containers.findIndex((container) => container.id === overContainer.id);
 
             // Find the index of the active and over item
-            const activeitemIndex = activeContainer.items.findIndex(
-                (item) => item.id === active.id,
-            );
-            const overitemIndex = overContainer.items.findIndex(
-                (item) => item.id === over.id,
-            );
+            const activeitemIndex = activeContainer.items.findIndex((item) => item.id === active.id);
+            const overitemIndex = overContainer.items.findIndex((item) => item.id === over.id);
+
             // In the same container
             if (activeContainerIndex === overContainerIndex) {
                 let newItems = [...containers];
@@ -205,21 +218,28 @@ export default function MainBoard({ board }: MainBoardProps) {
                     activeitemIndex,
                     overitemIndex,
                 );
-
                 setContainers(newItems);
             } else {
                 // In different containers
                 let newItems = [...containers];
-                const [removeditem] = newItems[activeContainerIndex].items.splice(
-                    activeitemIndex,
-                    1,
-                );
-                newItems[overContainerIndex].items.splice(
-                    overitemIndex,
-                    0,
-                    removeditem,
-                );
+                const [removeditem] = newItems[activeContainerIndex].items.splice(activeitemIndex, 1);
+                newItems[overContainerIndex].items.splice(overitemIndex, 0, removeditem);
                 setContainers(newItems);
+            }
+
+            try {
+                const ticket = allTickets.find((ticket) => ticket.id === activeId) as TicketType;
+                console.log(activeId)
+                console.log(ticket);
+
+                const newTicket = {
+                    id: ticket.id,
+                    title: ticket.ticketName,
+                };
+
+                await moveTicket(newTicket, board?.id!, overContainerIndex, overitemIndex);
+            } catch (err) {
+                console.log('Error in moving tickets', err);
             }
         }
 
@@ -239,24 +259,15 @@ export default function MainBoard({ board }: MainBoardProps) {
             if (!activeContainer || !overContainer) return;
 
             // Find the index of the active and over container
-            const activeContainerIndex = containers.findIndex(
-                (container) => container.id === activeContainer.id,
-            );
-            const overContainerIndex = containers.findIndex(
-                (container) => container.id === overContainer.id,
-            );
+            const activeContainerIndex = containers.findIndex((container) => container.id === activeContainer.id);
+            const overContainerIndex = containers.findIndex((container) => container.id === overContainer.id);
 
             // Find the index of the active and over item
-            const activeitemIndex = activeContainer.items.findIndex(
-                (item) => item.id === active.id,
-            );
+            const activeitemIndex = activeContainer.items.findIndex((item) => item.id === active.id);
 
             // Remove the active item from the active container and add it to the over container
             let newItems = [...containers];
-            const [removeditem] = newItems[activeContainerIndex].items.splice(
-                activeitemIndex,
-                1,
-            );
+            const [removeditem] = newItems[activeContainerIndex].items.splice(activeitemIndex, 1);
             newItems[overContainerIndex].items.push(removeditem);
             setContainers(newItems);
         }
@@ -295,6 +306,23 @@ export default function MainBoard({ board }: MainBoardProps) {
                     <Button onClick={onAddItem}>Add Item</Button>
                 </div>
             </Modal>
+            {/* Ticket Modal */}
+            {/* <Modal
+                showModal={showTicketModal}
+                setShowModal={setShowTicketModal}
+            >
+                <div className="flex flex-col w-full items-start gap-y-4">
+                    <h1 className="text-gray-800 text-3xl font-bold">Ticket</h1>
+                    <Input
+                        type="text"
+                        placeholder="Container Title"
+                        name="containername"
+                        value={containerName}
+                        onChange={(e) => setContainerName(e.target.value)}
+                    />
+                    <Button> Ticket </Button>
+                </div>
+            </Modal> */}
 
             <div className="flex flex-row h-full gap-2 overflow-x-auto">
                 <DndContext
@@ -316,11 +344,13 @@ export default function MainBoard({ board }: MainBoardProps) {
                                         setCurrentContainerId(container.id);
                                     }}
                                 >
-                                    <SortableContext items={container.items.map((i) => i.id)}>
-                                        <div className="flex items-start flex-col gap-y-4">
-                                            {container.items.map((i) => (
-                                                <Items title={i.title} id={i.id} key={i.id} />
-                                            ))}
+                                    <SortableContext items={container.items.map((item) => item.id)}>
+                                        <div className="flex items-start flex-col gap-y-4" onClick={() => console.log(4324)}>
+                                            {
+                                                container.items.map((ticket) => (
+                                                    <Items id={ticket.id} title={ticket.title} key={ticket.id} />
+                                                ))
+                                            }
                                         </div>
                                     </SortableContext>
                                 </Container>

@@ -8,14 +8,15 @@ import {
 	BadgeAlert,
 	TriangleAlert
 } from 'lucide-react'
-import { ProjectType } from '@/types/projectType'
 import Modal from '../Modal/modal';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { createProject, getProject, getProjectsByUserId } from "@/backend/projects";
 import { ProjectList } from '../projectList/projectList';
+import { getUser } from '@/backend/user';
 import { useAuth } from '@/context/authContext';
-
+import { addBoard } from '@/backend/boards';
+import { BoardType, ProjectType, UserType } from '@/types';
 
 
 export default function Sidebar() {
