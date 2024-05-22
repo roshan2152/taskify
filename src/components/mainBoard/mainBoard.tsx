@@ -26,7 +26,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { addColumn } from '@/backend/boards';
 import { addTicket } from '@/backend/tickets';
-import { Plus, PlusCircle } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { BoardType } from '@/types/boardType';
 
 type DNDType = {
@@ -43,33 +43,26 @@ interface MainBoardProps {
 }
 
 export default function MainBoard({ board }: MainBoardProps) {
-    console.log(board)
 
     const [containers, setContainers] = useState<DNDType[]>([]);
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-    const [currentContainerId, setCurrentContainerId] =
-        useState<UniqueIdentifier>();
+    const [currentContainerId, setCurrentContainerId] = useState<UniqueIdentifier>();
     const [containerName, setContainerName] = useState('');
     const [itemName, setItemName] = useState('');
-    const [showAddContainerModal, setShowAddContainerModal] = React.useState<boolean>(false);
-    const [showAddItemModal, setShowAddItemModal] = React.useState<boolean>(false);
-
-    const [isCreating, setIsCreating] = React.useState<boolean>(false);
+    const [showAddContainerModal, setShowAddContainerModal] = useState<boolean>(false);
+    const [showAddItemModal, setShowAddItemModal] = useState<boolean>(false);
+    const [isCreating, setIsCreating] = useState<boolean>(false);
 
 
     const getData = () => {
-        if (board?.containers) {
-            console.log(3242)
-            setContainers(board?.containers)
+        if (board) {
+            setContainers(board.containers)
         }
     }
 
     useEffect(() => {
-        console.log(containers);
         getData();
-    }, [board?.containers])
-
-    console.log(containers)
+    }, [board])
 
     const onAddContainer = async () => {
         if (!containerName) return;
@@ -79,7 +72,7 @@ export default function MainBoard({ board }: MainBoardProps) {
                 setIsCreating(true);
 
                 const columnId = uuidv4();
-                await addColumn(board.id, containerName, columnId) as DNDType;
+                await addColumn(board.id, containerName, columnId);
 
                 setContainers([
                     ...containers,
@@ -91,7 +84,7 @@ export default function MainBoard({ board }: MainBoardProps) {
                 ]);
             }
         } catch (err) {
-            console.log('Error in adding column', err)
+            console.log('Error in adding container', err)
         } finally {
             setIsCreating(false);
             setContainerName('');
@@ -100,37 +93,29 @@ export default function MainBoard({ board }: MainBoardProps) {
     };
 
     const onAddItem = async () => {
-        if (!itemName)
-            return;
-
-        const id = `item-${uuidv4()}`;
-        const container = containers.find((item) => item.id === currentContainerId);
-
-        if (!container)
-            return;
-        console.log(container)
+        if(!itemName)
+                return;
         
-        container.items.push({
-            id,
-            title: itemName,
-        });
-        
-        console.log(container)
-
-        setContainers([...containers]);
-
         try {
-            const columnIndex = containers?.findIndex((item: any) => item.title === container.title);
-            const boardId = '';
-            const columnName = container.title;
+            if(board){
+                setIsCreating(true);
+                const ticketId = 'item'+uuidv4();
+                const res = await addTicket(board.id,currentContainerId!,itemName,ticketId) as {id:UniqueIdentifier,title:string};
+                const newContainers = containers.map((container) => {
+                    if(container.id == currentContainerId)
+                        container.items.unshift(res)
+                    return container;
+                })
 
-            await addTicket(board?.id!, columnIndex, itemName);
-        } catch (err) {
-            console.log('Error in adding ticket', err);
+                setContainers(newContainers);
+            }
+        } catch (e) {
+            console.log("error in adding ticket/item" , e);
+        } finally {
+            setIsCreating(false);
+            setItemName('');
+            setShowAddItemModal(false);
         }
-
-        setItemName('');
-        setShowAddItemModal(false);
     };
 
     // Find the value of the items
@@ -329,7 +314,6 @@ export default function MainBoard({ board }: MainBoardProps) {
                                     onAddItem={() => {
                                         setShowAddItemModal(true);
                                         setCurrentContainerId(container.id);
-                                        console.log(container.id)
                                     }}
                                 >
                                     <SortableContext items={container.items.map((i) => i.id)}>

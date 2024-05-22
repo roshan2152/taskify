@@ -1,13 +1,12 @@
-import { getFirestore, getDoc, doc, setDoc, serverTimestamp, deleteDoc, updateDoc, arrayUnion, collection } from 'firebase/firestore'
-import { auth } from '../dbConfig/auth'
+import {getDoc, doc, setDoc, serverTimestamp, deleteDoc, updateDoc, collection } from 'firebase/firestore'
 import { db } from '@/dbConfig/dbConfig';
+import { DNDType } from '@/types';
 
 
 
-export const addTicket = (boardId: string, columnIndex: number, ticketName: string) => {
+export const addTicket = (boardId: string, containerId: number | string, ticketName: string, ticketId: string
+) => {
     return new Promise(async (resolve, reject) => {
-
-        const docRef = doc(collection(db, "tickets"));
 
         const data = {
             ticketName,
@@ -17,26 +16,38 @@ export const addTicket = (boardId: string, columnIndex: number, ticketName: stri
             reporter: null,
             createdAt: serverTimestamp(),
         };
-
+        
+        
         try {
+            const docRef = doc(db,'tickets',ticketId);
             await setDoc(docRef, data);
-
+            
             const boardRef = doc(db, "boards", boardId);
             const docSnap = await getDoc(boardRef);
 
             if (docSnap.exists()) {
                 const containers = docSnap.data().containers;
-                containers[columnIndex].items.unshift(docRef.id);
+                
+                const newContainers = containers.map((container:DNDType) => {
+                    if(container.id == containerId){
+                        container.items.unshift({
+                            id: ticketId,
+                            title: ticketName
+                        })
+                    }
+                    return container;
+                })
 
                 updateDoc(boardRef, {
-                    containers: containers,
+                    containers: newContainers,
                 });
-                console.log('ticket added successfully')
-                resolve({ ...data, ticketId: docRef.id });
+                resolve({ id:docRef.id,title:ticketName });
             }
 
-        } catch (err) {
-            reject(err);
+            reject ({message: "board does not exist in which you want to create a ticket/item"})
+
+        } catch (e) {
+            reject({message:"something went wrong while creating ticket", error: e});
         }
     });
 };

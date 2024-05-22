@@ -36,14 +36,11 @@ export const addBoard = (projectId: string, boardName: string) => {
                     boards: arrayUnion(docRef.id),
                 });
                 resolve({ ...data, id: docRef.id });
-                console.log('Board added for project' + projectId);
             } else {
-                console.error("Document does not exist.");
-                reject({ message: 'Error!' });
+                reject({ message: 'Error in adding board' });
             }
 
         } catch (err) {
-            console.log(err);
             reject(err);
         }
     });
@@ -85,43 +82,40 @@ export const deleteBoard = (boardId: string, projectId: string) => {
 export const updateBoard = (boardId: string, boardName: string) => {
     return new Promise(async (resolve, reject) => {
 
-        const docRef = doc(db, "boards", boardId);
-        const docSnap = await getDoc(docRef);
+        try {
+            const docRef = doc(db, "boards", boardId);
+            const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
+            if (docSnap.exists()) {
+                await updateDoc(docRef, {
+                    boardName: boardName,
+                });
 
-            await updateDoc(docRef, {
-                boardName: boardName,
-            });
+            resolve({message : "board name updated successfully"})
+            } 
 
-            console.log("board name updated.");
-        } else {
-            console.log("board name not updated.");
+            reject ({message: "board does not exists"})
+        } catch (e) {
+            reject({message: "some error occured while changing board name", error: e})
         }
     });
 };
 
 export const addColumn = (boardId: string, title: string, columnId: string) => {
     return new Promise(async (resolve, reject) => {
-        const docRef = doc(db, "boards", boardId);
-        const docSnap = await getDoc(docRef);
+        try {
+            const docRef = doc(db,'boards',boardId);
+            const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-            try {
+            if(docSnap.exists()){
                 await updateDoc(docRef, {
-                    containers: arrayUnion({
-                        id: columnId,
-                        title: title,
-                        items: [],
-                    }),
+                    containers: arrayUnion({id: columnId, title: title, items: []})
                 });
-                // console.log(docSnap.data());
-                resolve({ message: 'success' });
-                console.log('Added column succesfully!')
-            } catch (err) {
-                console.log('Error in adding new column', err);
-                reject({ message: 'Error' });
+
+                resolve({message: "column added successfully"})
             }
+        } catch (e) {
+            reject({message: "error in adding column", error: e})
         }
     });
 };
@@ -137,9 +131,10 @@ export const getBoard = (boardId: string) => {
                 resolve({ id: docRef.id, ...docSnap.data() });
             }
 
+            reject({message:"board does not exists"})
+
         } catch (err) {
-            console.log(err);
-            reject({ message: 'Error' });
+            reject({ message: 'Error in fetching board' });
         }
     });
 }
