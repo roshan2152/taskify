@@ -1,6 +1,6 @@
 import { db } from '@/dbConfig/dbConfig';
-import { BoardType } from '@/types/boardType';
-import { getFirestore, getDoc, doc, setDoc, serverTimestamp, runTransaction, deleteDoc, arrayUnion, updateDoc, collection } from 'firebase/firestore'
+import { BoardType } from '@/types';
+import {  getDoc, doc, setDoc,   deleteDoc, arrayUnion, updateDoc, collection } from 'firebase/firestore'
 import { v4 as uuidv4 } from 'uuid';
 
 export const addBoard = (projectId: string, boardName: string) => {

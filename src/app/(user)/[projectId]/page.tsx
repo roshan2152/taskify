@@ -1,7 +1,7 @@
 'use client'
 import { getProject } from '@/backend/projects'
 import Board from '@/components/board/board'
-import { ProjectType } from '@/types/projectType'
+import { ProjectType } from '@/types'
 import React, { useEffect, useState } from 'react'
 
 const Project = ({ params }: { params: { projectId: string } }) => {
