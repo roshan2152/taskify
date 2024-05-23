@@ -10,17 +10,17 @@ export const addBoard = (projectId: string, boardName: string) => {
         const data = {
             boardName,
             containers: [{
-                id: uuidv4(),
+                id: 'container'+uuidv4(),
                 title: 'Todo',
                 items: [],
             },
             {
-                id: uuidv4(),
+                id: 'container'+uuidv4(),
                 title: 'Inprogress',
                 items: [],
             },
             {
-                id: uuidv4(),
+                id: 'container'+uuidv4(),
                 title: 'Done',
                 items: [],
             },],        // will contain users id {title: abc, ticketsId: []}

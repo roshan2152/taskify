@@ -25,10 +25,10 @@ import Modal from '@/components/Modal/modal';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { addColumn } from '@/backend/boards';
-import { addTicket, getTicket, moveTicket } from '@/backend/tickets';
-import { Plus, TicketCheck } from 'lucide-react';
-import { BoardType, DNDType, TicketType, itemType } from '@/types';
-import { updateTicket } from '@/backend/comments';
+import { addTicket, getTicket, moveTicketToDifferentContainer,moveTicketToEmptyContainer,moveTicketInSameContainer} from '@/backend/tickets';
+import { Plus } from 'lucide-react';
+import { BoardType, DNDType, TicketType } from '@/types';
+
 
 interface MainBoardProps {
     board: BoardType | null;
@@ -80,7 +80,7 @@ export default function MainBoard({ board }: MainBoardProps) {
 
     useEffect(() => {
         getAllTickets();
-    }, [containers]);
+    }, []);
 
     const onAddContainer = async () => {
         if (!containerName) return;
@@ -89,7 +89,7 @@ export default function MainBoard({ board }: MainBoardProps) {
             if (board) {
                 setIsCreating(true);
 
-                const columnId = uuidv4();
+                const columnId = 'container'+uuidv4();
                 await addColumn(board.id, containerName, columnId);
 
                 setContainers([
@@ -125,6 +125,7 @@ export default function MainBoard({ board }: MainBoardProps) {
                     return container;
                 })
                 setContainers(newContainers);
+                getAllTickets();
             }
         } catch (err) {
             console.log("error in adding ticket/item", err);
@@ -184,9 +185,6 @@ export default function MainBoard({ board }: MainBoardProps) {
     const handleDragMove = async (event: DragMoveEvent) => {
         const { active, over } = event;
 
-        console.log(active.id)
-        let newColumnIndex;
-
         // Handle Items Sorting
         if (
             active.id.toString().includes('item') &&
@@ -219,33 +217,30 @@ export default function MainBoard({ board }: MainBoardProps) {
                     overitemIndex,
                 );
                 setContainers(newItems);
+
+                try {
+                    await moveTicketInSameContainer(board?.id!, activeContainerIndex, activeitemIndex, overitemIndex)
+                } catch (e) {
+                    console.log('error in moving ticket in same container',e);
+                }
             } else {
                 // In different containers
                 let newItems = [...containers];
                 const [removeditem] = newItems[activeContainerIndex].items.splice(activeitemIndex, 1);
                 newItems[overContainerIndex].items.splice(overitemIndex, 0, removeditem);
                 setContainers(newItems);
-            }
-
-            try {
-                const ticket = allTickets.find((ticket) => ticket.id === activeId) as TicketType;
-                console.log(activeId)
-                console.log(ticket);
-
-                const newTicket = {
-                    id: ticket.id,
-                    title: ticket.ticketName,
-                };
-
-                await moveTicket(newTicket, board?.id!, overContainerIndex, overitemIndex);
-            } catch (err) {
-                console.log('Error in moving tickets', err);
+           
+                try {
+                    await moveTicketToDifferentContainer(removeditem, board?.id!, overContainerIndex, overitemIndex);
+                } catch (err) {
+                    console.log('Error in moving tickets', err); 
+                }
             }
         }
 
         // Handling Item Drop Into a Container
         if (
-            active.id.toString().includes('item') &&
+            active?.id.toString().includes('item') &&
             over?.id.toString().includes('container') &&
             active &&
             over &&
@@ -270,8 +265,15 @@ export default function MainBoard({ board }: MainBoardProps) {
             const [removeditem] = newItems[activeContainerIndex].items.splice(activeitemIndex, 1);
             newItems[overContainerIndex].items.push(removeditem);
             setContainers(newItems);
+
+            try {
+                await moveTicketToEmptyContainer(removeditem, board?.id!, overContainerIndex);
+            } catch (err) {
+                console.log('Error in moving tickets to empty container', err);
+            }
         }
-    };
+    }
+
 
     return (
         <div className="w-full h-full mt-10">
@@ -373,3 +375,4 @@ export default function MainBoard({ board }: MainBoardProps) {
         </div>
     )
 }
+
