@@ -1,6 +1,7 @@
 import { getDoc, doc, setDoc, serverTimestamp, deleteDoc, updateDoc, collection } from 'firebase/firestore'
 import { db } from '@/dbConfig/dbConfig';
 import { DNDType, itemType } from '@/types';
+import { arrayMove } from '@dnd-kit/sortable';
 
 export const addTicket = (boardId: string, containerId: number | string, ticketName: string, ticketId: string) => {
     return new Promise(async (resolve, reject) => {
@@ -115,7 +116,7 @@ export const updateTicket = (ticketId: string, boardId: string, columnIndex: num
     });
 };
 
-export const moveTicket = (ticket: itemType, boardId: string, newcolumnIndex: number, overitemIndex: number) => {
+export const moveTicketToDifferentContainer = (ticket: itemType, boardId: string, newcolumnIndex: number, overitemIndex: number) => {
     return new Promise(async (resolve, reject) => {
 
         const docRef = doc(db, "boards", boardId);
@@ -134,17 +135,67 @@ export const moveTicket = (ticket: itemType, boardId: string, newcolumnIndex: nu
                 await updateDoc(docRef, {
                     containers: containers
                 });
+
+                resolve({message:'success'})
             }
 
-            resolve({ message: 'success' });
+            reject({ message: 'error in moving ticket to different container' });
 
-        } catch (err) {
-            console.log(err);
-            reject(err);
+        } catch (e) {
+            reject({message:"error in moving ticket to differenct container",error:e})
         }
     });
 };
 
+export const moveTicketInSameContainer = (boardId: string,activeContainerIndex: number,activeItemIndex: number,overItemIndex: number)=>{
+    return new Promise(async (reject,resolve) => {
+        try {
+            const boardRef = doc(db,'boards',boardId);
+            const boardSnapshot = await getDoc(boardRef);
+
+            if(boardSnapshot.exists()){
+                let containers = boardSnapshot.data().containers;
+                containers[activeContainerIndex] = arrayMove(
+                    containers[activeContainerIndex],
+                    activeItemIndex,
+                    overItemIndex,
+                )
+
+                await updateDoc(boardRef,{
+                    containers: containers
+                })
+
+                resolve({message:"success"})
+            }
+            reject({message:"something went wrong while moving ticket to same container"});
+        } catch (e) {
+            reject({message:"something went wrong while moving ticket to same container",error:e})
+        }
+    })
+}
+export const moveTicketToEmptyContainer = (ticket: itemType, boardId: string, newColumnIndex:number) => {
+    return new Promise(async (resolve,reject) => {
+        try {
+            const boardRef = doc(db,'boards',boardId);
+            const boardSnapshot = await getDoc(boardRef);
+
+            if(boardSnapshot.exists()){
+                let containers = boardSnapshot.data().containers;
+                containers = containers.map((container: DNDType) => ({
+                    ...container,
+                    items: container.items.filter((item:itemType) => item.id !== ticket.id)
+                }))
+                containers[newColumnIndex].items.push(ticket);
+                await updateDoc(boardRef, {
+                    containers: containers
+                });
+                resolve({message:"ticket moved to an empty container"})
+            }
+        } catch (e) {
+            reject({message:"error in moving ticket to an empty container",error:e})
+        }
+    })
+}
 export const getTicket = (id: string) => {
     return new Promise(async (resolve, reject) => {
 
