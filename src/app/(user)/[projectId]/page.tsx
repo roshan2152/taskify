@@ -24,7 +24,7 @@ const Project = ({ params }: { params: { projectId: string } }) => {
     
 
     return (
-        <div className='flex justify-center items-center'>
+        <div className='flex justify-center items-center '>
             {isLoading && <p>Loading your project....</p>}
             {!isLoading && project && <Board  project={project}/>}
         </div>

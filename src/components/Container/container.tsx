@@ -15,7 +15,7 @@ const Container = ({
     const {
         attributes,
         setNodeRef,
-        
+        // listeners,
         transform,
         transition,
         isDragging,
@@ -36,12 +36,12 @@ const Container = ({
                 transform: CSS.Translate.toString(transform),
             }}
             className={clsx(
-                'w-[17rem] relative h-full bg-gray-100 dark:bg-[#1F1F1F] dark:text-white rounded-xl flex flex-col gap-y-4 max-h-[68vh] overflow-y-auto',
-                isDragging && 'opacity-50',
+                'w-[17rem] relative h-full bg-gray-100 dark:bg-[#1F1F1F] dark:text-white rounded-xl flex flex-col gap-y-4 max-h-[65vh] overflow-y-auto',
+                isDragging && 'opacity-0',
             )}
         >
-            <div className="flex items-center justify-between sticky top-0 bg-slate-200 w-full">
-                <div className="flex flex-col gap-y-1">
+            <div className="flex items-center justify-between sticky top-0 bg-slate-200 w-full shadow-md z-10">
+                <div className="flex flex-col gap-y-1 ">
                     <h1 className="text-gray-800 text-xl p-2">{title}</h1>
                     <p className="text-gray-400 text-sm">{description}</p>
                 </div>
