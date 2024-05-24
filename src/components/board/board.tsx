@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import MainBoard from '../mainBoard/mainBoard';
 import { getBoard, updateBoard } from '@/backend/boards';
-import { BoardType, ProjectType } from '@/types';
+import { BoardType, DNDType, ProjectType } from '@/types';
 
 interface BoardProps {
     project: ProjectType | null;
@@ -15,26 +15,23 @@ interface BoardProps {
 export default function Board({ project }: BoardProps) {
 
     const [board, setBoard] = useState<BoardType | null>(null);
+    const [boardName, setBoardName] = useState<string>("BoardName");
+    const [projectName,setProjectName] = useState<string>('ProjectName');
+    const [boardNameisEditable, setBoardNameisEditable] = useState<boolean>(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const getProjectBoard = async () => {
         if (project) {
             const res = await getBoard(project.boards[0]) as BoardType;
             setBoard(res);
-            setBoardName(res.boardName)
+            setBoardName(res.boardName);
+            setProjectName(project.projectName)
         }
     }
-
 
     useEffect(() => {
         getProjectBoard();
     }, [project])
-
-
-
-    const [boardName, setBoardName] = useState<string>("BoardName");
-    const [boardNameisEditable, setBoardNameisEditable] = useState<boolean>(false);
-    const inputRef = useRef<HTMLInputElement>(null);
-
 
     const updateName = async () => {
         try {
@@ -53,7 +50,7 @@ export default function Board({ project }: BoardProps) {
             updateName();
     };
 
-   
+    
 
     useEffect(() => {
 
@@ -75,10 +72,10 @@ export default function Board({ project }: BoardProps) {
         <>
             {
                 project ? (
-                    <div className='flex flex-col w-[80vw] h-full mt-10 px-5'>
+                    <div className='flex flex-col w-[80vw] h-full mt-10 px-5 pt-8'>
                         <div>
                             <div className='text-[#44556f] dark:text-[#b6c2cf] text-sm '>
-                                projectName / boardName
+                                {`${projectName} / ${boardName}`}
                             </div>
 
                             <div className='h-16 flex items-center'>
@@ -90,7 +87,7 @@ export default function Board({ project }: BoardProps) {
                                         value={boardName}
                                         onChange={(e) => setBoardName(e.target.value)}
                                         onKeyDown={handleKeyPress}
-                                        placeholder='Enter board name...'
+                                        placeholder='Enter project name...'
                                     />
                                 ) : (
                                     <Button onClick={() => setBoardNameisEditable(true)} className='py-7 pr-3 pl-0 text-2xl font-semibold text-black dark:text-[#b6c2cf] dark:bg-transparent bg-white  hover:bg-[#f7f8f9] dark:hover:bg-[#313539]'>
@@ -105,7 +102,7 @@ export default function Board({ project }: BoardProps) {
                                 placeholder='Search this board'
                             />
                         </div>
-                        <MainBoard board={ board} />
+                        <MainBoard board={board}/>
                     </div>
                 ) : (
                     <div className='flex flex-col w-[80vw] h-full px-5'>

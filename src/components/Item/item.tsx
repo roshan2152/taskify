@@ -22,7 +22,7 @@ interface ItemsProps {
     title: string;
 };
 
-const Items = ({  id,title }: any) => {
+const Items = ({  id,title,isOverlay }: any) => {
 
     const {
         attributes,
@@ -39,7 +39,7 @@ const Items = ({  id,title }: any) => {
     });
 
     return (
-        <div onClick={() => console.log(23432333333)}
+        <div
             ref={setNodeRef}
             {...attributes}
             {...listeners}
@@ -48,11 +48,11 @@ const Items = ({  id,title }: any) => {
                 transform: CSS.Translate.toString(transform),
             }}
             className={clsx(
-                'px-2 py-4 bg-white shadow-md rounded-xl w-full border border-transparent hover:border-gray-200 cursor-pointer',
-                isDragging && 'opacity-50',
+                'px-2 py-4 bg-white shadow-md w-full border border-transparent hover:border-gray-200 cursor-pointer',
+                isDragging && 'opacity-0', isOverlay && 'rotate-6'
             )}
         >
-            <div className="flex items-center justify-between" onClick={() => console.log('fdsdfsadfs')}>
+            <div className="flex items-center justify-between">
                 {title}
             </div>
         </div>
