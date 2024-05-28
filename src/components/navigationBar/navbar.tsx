@@ -37,7 +37,7 @@ function Navbar() {
     }
 
     return (
-        <div className="flex justify-between items-center text-primary w-full dark:bg-slate-700 border-b-2 border-[#dddfe5] dark:border-[#282e34] bg-[#E3E5E8] py-2 px-5 fixed top-0">
+        <div className="flex justify-between items-center text-primary w-full dark:bg-slate-700 border-b-2 border-[#dddfe5] dark:border-[#282e34] bg-[#E3E5E8] py-2 px-5 fixed top-0 shadow-md">
             <div className="flex items-center gap-3">
                 <ListTodo color="#0c45ed" strokeWidth={2.75} />
                 <div>

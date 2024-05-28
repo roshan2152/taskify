@@ -308,23 +308,6 @@ export default function MainBoard({ board }: MainBoardProps) {
                     <Button onClick={onAddItem}>Add Item</Button>
                 </div>
             </Modal>
-            {/* Ticket Modal */}
-            {/* <Modal
-                showModal={showTicketModal}
-                setShowModal={setShowTicketModal}
-            >
-                <div className="flex flex-col w-full items-start gap-y-4">
-                    <h1 className="text-gray-800 text-3xl font-bold">Ticket</h1>
-                    <Input
-                        type="text"
-                        placeholder="Container Title"
-                        name="containername"
-                        value={containerName}
-                        onChange={(e) => setContainerName(e.target.value)}
-                    />
-                    <Button> Ticket </Button>
-                </div>
-            </Modal> */}
 
             <div className="flex flex-row h-full gap-2 overflow-x-auto">
                 <DndContext
@@ -363,10 +346,10 @@ export default function MainBoard({ board }: MainBoardProps) {
                         <Plus className='h-3 w-3' />
                     </Button>
 
-                    <DragOverlay adjustScale={false}>
+                    <DragOverlay adjustScale={true}>
                         {/* Drag Overlay For item Item */}
                         {activeId && activeId.toString().includes('item') && (
-                            <Items id={activeId} title={findItemTitle(activeId)} />
+                            <Items id={activeId} title={findItemTitle(activeId)} isOverlay={true}/>
                         )}
                     </DragOverlay>
                 </DndContext>

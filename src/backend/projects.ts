@@ -124,47 +124,4 @@ export const getProjectsByEmail = () => {
             reject({ message: e });
         }
     })
-}
-
-// const fs = require('fs');
-// const sgMail = require('@sendgrid/mail');
-// sgMail.setApiKey(process.env.API_KEY);
-
-// export const sendEmail = async () => {
-
-//     const message = {
-//         to: 'taskify@gmail.com',
-//         from: 'yourtaskify@gmail.com',
-//         subject: 'Hello from taskify',
-//         text: 'hello hello',
-//         html: '<h1>hello hello</h1>',
-//     };
-
-//     try {
-//         await sgMail.send(message);
-//         console.log('Email sent...')
-//     } catch (err) {
-//         console.log('Email not sent...', err)
-//     }
-// }
-
-export const sendEmail = async (email: string) => {
-
-
-    const sgMail = require('@sendgrid/mail')
-    sgMail.setApiKey('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')
-    const msg = {
-        to: email, // Change to your recipient
-        from: 'taskify@gmail.com', // Change to your verified sender
-        subject: 'Sending with SendGrid is Fun',
-        text: 'and easy to do anywhere, even with Node.js',
-        html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-    }
-    try {
-        await sgMail.send(msg);
-        console.log('Email sent')
-
-    } catch (err) {
-        console.error(err)
-    }
 };
