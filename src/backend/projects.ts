@@ -80,31 +80,6 @@ export const updateProject = (projectId: any, data: MemberType) => {
     });
 };
 
-// export const addMember = (projectId: any, memberData: any) => {
-//     return new Promise(async (resolve, request) => {
-
-//         const docRef = doc(db, "projects", projectId);
-//         const docSnap = await getDoc(docRef);
-
-//         if (docSnap.exists()) {
-
-//             try {
-//                 await updateDoc(docRef, {
-//                     members: [] // userId
-//                 });
-
-//             } catch (err) {
-//                 console.log(err)
-//             }
-
-//             console.log("project id added to array successfully.");
-//         } else {
-//             console.error("Document does not exist.");
-//         }
-
-//     });
-// };
-
 export const getProjectsByEmail = () => {
     return new Promise(async (resolve, reject) => {
         try {
