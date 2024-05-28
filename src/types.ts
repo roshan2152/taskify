@@ -48,3 +48,12 @@ export type UserType = {
     email: string,
     name: string,
 };
+
+export type MemberType = {
+    name: string;
+    email: string;
+    role: string;
+}
+
+// email recovery code
+// VHAYTXZ5BLWYFEF43ATW5Z4Q

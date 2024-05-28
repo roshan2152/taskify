@@ -5,7 +5,28 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import MainBoard from '../mainBoard/mainBoard';
 import { getBoard, updateBoard } from '@/backend/boards';
-import { BoardType, ProjectType } from '@/types';
+import { BoardType, MemberType, ProjectType } from '@/types';
+import Modal from '../Modal/modal';
+import { UserPlus } from 'lucide-react';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { sendEmail, updateProject } from '@/backend/projects';
+import { sendSignInLinkToEmail } from 'firebase/auth';
+import { auth } from '@/dbConfig/auth';
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from "@/components/ui/avatar"
+
+
 
 interface BoardProps {
     project: ProjectType | null;
@@ -15,6 +36,13 @@ interface BoardProps {
 export default function Board({ project }: BoardProps) {
 
     const [board, setBoard] = useState<BoardType | null>(null);
+    const [showMemberModal, setShowMemberModal] = useState<boolean>(false);
+    const [memberData, setMemberData] = useState({
+        name: '',
+        email: '',
+        role: '',
+    });
+
 
     const getProjectBoard = async () => {
         if (project) {
@@ -29,7 +57,7 @@ export default function Board({ project }: BoardProps) {
         getProjectBoard();
     }, [project])
 
-
+    console.log(project)
 
     const [boardName, setBoardName] = useState<string>("BoardName");
     const [boardNameisEditable, setBoardNameisEditable] = useState<boolean>(false);
@@ -38,31 +66,31 @@ export default function Board({ project }: BoardProps) {
 
     const updateName = async () => {
         try {
-            if(boardName.length==0 || boardName===board?.boardName)
-                    return;
+            if (boardName.length == 0 || boardName === board?.boardName)
+                return;
 
             await updateBoard(board?.id!, boardName);
             setBoardNameisEditable(false);
-        } catch(e){
+        } catch (e) {
             console.log(e);
         }
     }
 
     const handleKeyPress = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-       if(e.key === 'Enter')
+        if (e.key === 'Enter')
             updateName();
     };
 
-   
+
 
     useEffect(() => {
 
         const handleClickOutside = (event: MouseEvent) => {
 
-            if (inputRef.current && !inputRef.current.contains(event.target as Node)){
-               setBoardNameisEditable(false)
+            if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+                setBoardNameisEditable(false)
             }
-            
+
         };
 
         document.addEventListener('mousedown', handleClickOutside);
@@ -71,8 +99,79 @@ export default function Board({ project }: BoardProps) {
         };
     }, []);
 
+    const addMember = async () => {
+        // check member data
+        if (memberData.name.length === 0 || memberData.email.length === 0 || memberData.role.length === 0) {
+            alert('Please enter all fields..');
+            return;
+        }
+
+        try {
+            if (project) {
+                await updateProject(project.id, memberData);
+                console.log(123);
+                await sendSignInLinkToEmail(auth, memberData.email, {
+                    url: `http://localhost:3000/${project.boards[0]}`,
+                    handleCodeInApp: true,
+                });
+                console.log('Mail sent');
+            }
+
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setMemberData({
+                name: '',
+                email: '',
+                role: '',
+            });
+            setShowMemberModal(false);
+        }
+    };
+    const rephraseName = (name: string) => {
+        const newName = name.split(' ');
+
+        return newName[0][0] + newName[1][0];
+    }
+
     return (
         <>
+            <Modal
+                showModal={showMemberModal}
+                setShowModal={setShowMemberModal}
+            >
+                <div className="flex flex-col w-full items-start gap-y-4">
+                    <h1 className="text-gray-800 text-3xl font-bold">Add Member</h1>
+                    <Input
+                        required
+                        type="text"
+                        placeholder="Name"
+                        name="name"
+                        value={memberData.name}
+                        onChange={(e) => setMemberData({ ...memberData, name: e.target.value })}
+                    />
+                    <Input
+                        required
+                        type="email"
+                        placeholder="Email"
+                        name="email"
+                        value={memberData.email}
+                        onChange={(e) => setMemberData({ ...memberData, email: e.target.value })}
+                    />
+                    <Select onValueChange={(e) => setMemberData({ ...memberData, role: e })} defaultValue={memberData.role}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem className='cursor-pointer' value="admin">Admin</SelectItem>
+                                <SelectItem className='cursor-pointer' value="member">Member</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                    <Button onClick={addMember}>Add</Button>
+                </div>
+            </Modal>
             {
                 project ? (
                     <div className='flex flex-col w-[80vw] h-full mt-10 px-5'>
@@ -98,14 +197,26 @@ export default function Board({ project }: BoardProps) {
                                     </Button>
                                 )}
                             </div>
-
-                            <Input
-                                className='py-4 pr-3 w-[10rem] text-sm  rounded-none bg-transparent'
-                                type='text'
-                                placeholder='Search this board'
-                            />
+                            <div className='flex items-center'>
+                                <Input
+                                    className='py-4 pr-3 w-[10rem] text-sm  rounded-none bg-transparent mr-5'
+                                    type='text'
+                                    placeholder='Search this board'
+                                />
+                                {project.members?.length > 0 &&
+                                    project.members.map((member: MemberType, index) => {
+                                        return (
+                                            <Avatar key={index} className='cursor-pointer'>
+                                                <AvatarImage alt={member.name} />
+                                                <AvatarFallback>{rephraseName(member.name)}</AvatarFallback>
+                                            </Avatar>
+                                        )
+                                    })
+                                }
+                                <UserPlus className='ml-5 h-6 w-6 cursor-pointer' onClick={() => setShowMemberModal(true)} />
+                            </div>
                         </div>
-                        <MainBoard board={ board} />
+                        <MainBoard board={board} />
                     </div>
                 ) : (
                     <div className='flex flex-col w-[80vw] h-full px-5'>

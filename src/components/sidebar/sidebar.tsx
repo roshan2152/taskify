@@ -11,7 +11,7 @@ import {
 import Modal from '../Modal/modal';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { createProject, getProject, getProjectsByUserId } from "@/backend/projects";
+import { createProject, getProject,  getProjectsByEmail } from "@/backend/projects";
 import { ProjectList } from '../projectList/projectList';
 import { getUser } from '@/backend/user';
 import { useAuth } from '@/context/authContext';
@@ -31,7 +31,7 @@ export default function Sidebar() {
 	const [nameExists, setNameExists] = useState<boolean>(false);
 
 	const getUserProjects = async () => {
-		const userProjects = await getProjectsByUserId(user?.uid) as ProjectType[];
+		const userProjects = await getProjectsByEmail() as ProjectType[];
 		setProjects(userProjects)
 	}
 

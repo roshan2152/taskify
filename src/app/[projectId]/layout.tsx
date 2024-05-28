@@ -2,7 +2,6 @@
 import { getProject } from '@/backend/projects'
 import Board from '@/components/board/board'
 import React, { useEffect, useState } from 'react'
-import ProjectClient from './page'
 import { addBoard, getBoards } from '@/backend/boards'
 import { Button } from '@/components/ui/button'
 import Sidebar from '@/components/sidebar/sidebar'
