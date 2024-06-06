@@ -321,6 +321,7 @@ export default function MainBoard({ board }: MainBoardProps) {
                         {containers && containers.map((container) => (
                             <div className="h-full" key={container.id}>
                                 <Container
+                                    boardId={board?.id!}
                                     key={container.id}
                                     id={container.id}
                                     title={container.title}

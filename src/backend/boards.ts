@@ -120,6 +120,28 @@ export const addColumn = (boardId: string, title: string, columnId: string) => {
     });
 };
 
+export const deleteColumn = (boardId: string, columnId: string) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const docRef = doc(db,'boards',boardId);
+            const docSnap = await getDoc(docRef);
+
+            if(docSnap.exists()){
+                const data = docSnap.data();
+                const updatedColumns = data.containers.filter((column: any) => column.id !== columnId);
+
+                await updateDoc(docRef, {
+                    containers: updatedColumns
+                });
+
+                resolve({message: "column deleted successfully"})
+            }
+        } catch (e) {
+            reject({message: "error in deleting column", error: e})
+        }
+    });
+}
+
 export const getBoard = (boardId: string) => {
     return new Promise(async (resolve, reject) => {
 

@@ -1,6 +1,7 @@
 import { UniqueIdentifier } from '@dnd-kit/core';
 
 export default interface ContainerProps {
+  boardId: string;
   id: UniqueIdentifier;
   children: React.ReactNode;
   title?: string;

@@ -3,10 +3,13 @@ import ContainerProps from './container.type';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
+import { deleteColumn } from '@/backend/boards';
 import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
 
 const Container = ({
     id,
+    boardId,
     children,
     title,
     description,
@@ -25,7 +28,16 @@ const Container = ({
             type: 'container',
         },
     });
-    
+
+    const handleContainerDelete = async () => {
+
+        try {
+            await deleteColumn(boardId, String(id));
+        } catch (err) {
+            console.log('Error in adding container', err)
+        }
+    }
+
     return (
         <div
             {...attributes}
@@ -41,8 +53,13 @@ const Container = ({
             )}
         >
             <div className="flex items-center justify-between sticky top-0 bg-slate-200 w-full shadow-md z-10">
-                <div className="flex flex-col gap-y-1 ">
-                    <h1 className="text-gray-800 text-xl p-2">{title}</h1>
+                <div className="flex flex-col gap-y-1 w-full ">
+                    <div className='flex w-full justify-between items-center p-2'>
+                        <h1 className="text-gray-800 text-xl">{title}</h1>
+                        <Button onClick={handleContainerDelete} className='bg-transparent hover:bg-slate-400'>
+                            <Trash2 color='black' size={15} />
+                        </Button>
+                    </div>
                     <p className="text-gray-400 text-sm">{description}</p>
                 </div>
             </div>
@@ -50,7 +67,7 @@ const Container = ({
             <div className='pt-2 mx-1'>
                 {children}
             </div>
-            
+
             <Button variant="ghost" onClick={onAddItem} className='sticky bottom-0 bg-slate-200'>
                 +  Create issue
             </Button>
