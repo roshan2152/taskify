@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { deleteColumn } from '@/backend/boards';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 const Container = ({
     id,
@@ -33,6 +34,7 @@ const Container = ({
 
         try {
             await deleteColumn(boardId, String(id));
+            toast.success('Column deleted successfully');
         } catch (err) {
             console.log('Error in adding container', err)
         }
