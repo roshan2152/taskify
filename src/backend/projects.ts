@@ -1,5 +1,5 @@
 import { db } from '@/dbConfig/dbConfig';
-import { getDoc, doc, setDoc, serverTimestamp, updateDoc, arrayUnion, collection, query, where, getDocs, } from 'firebase/firestore'
+import { getDoc, doc, setDoc, deleteDoc, serverTimestamp, updateDoc, arrayUnion, collection, query, where, getDocs, } from 'firebase/firestore'
 import { addBoard } from './boards';
 import { getAuth } from 'firebase/auth';
 import { headers } from 'next/headers';
@@ -20,7 +20,7 @@ export const createProject = (name: string, userId: string | undefined) => {
                     name: auth.currentUser?.displayName,
                     role: 'admin',
                 }],        // will contain users id {email: abc@gmail.com, permission: 0}
-                membersEmail : [auth.currentUser?.email],
+                membersEmail: [auth.currentUser?.email],
                 boards: [],
                 userId: userId
             };
@@ -33,6 +33,19 @@ export const createProject = (name: string, userId: string | undefined) => {
     });
 };
 
+export const deleteProject = (projectId: string) => {
+    return new Promise(async (resolve, reject) => {
+
+        try {
+            const docRef = doc(db, "projects", projectId);
+            await deleteDoc(docRef);
+            
+            resolve({ message: 'project deleted successfully.' });
+        } catch (err) {
+            reject({ message: "something went wrong while deleting project" });
+        }
+    });
+}
 
 export const getProject = (projectId: string) => {
     return new Promise(async (resolve, reject) => {

@@ -4,6 +4,10 @@ import React, { useState } from "react";
 import { useRouter } from 'next/navigation'
 import Link from "next/link";
 import { ProjectType } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { deleteProject } from "@/backend/projects";
+import { toast } from "react-toastify";
 
 interface ProjectListProps {
     projects: ProjectType[],
@@ -18,6 +22,16 @@ export const ProjectList = ({ projects }: ProjectListProps) => {
     const showProject = (id: string) => {
         router.push(`/${id}`);
     };
+
+    const handleDeleteProject = async (id: string) =>{
+        try{
+            await deleteProject(id);
+            toast.success('Project deleted successfully');
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
 
 
     return (
@@ -44,10 +58,13 @@ export const ProjectList = ({ projects }: ProjectListProps) => {
                             className="flex items-center justify-center mt-2 ml-[30px] pl-2 rounded text-sm text-slate-500 font-bold bg-slate-200 hover:text-slate-800 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-900 transition-colors"
                             role="button"
                         >
-                            <PanelsTopLeft className="h-3 w-3" />
+                            <PanelsTopLeft strokeWidth={4} className="h-4 w-4" />
                             <p className="p-1 overflow-hidden w-full text-nowrap truncate">
                                 {project.projectName}
                             </p>
+                            <Button onClick={() => handleDeleteProject(project.id)} className='bg-transparent hover:bg-slate-300'>
+                                <Trash2 color='#64748B' strokeWidth={2} size={15} />
+                            </Button>
                         </div>
                     ))
                 )}

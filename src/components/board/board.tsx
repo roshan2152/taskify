@@ -25,6 +25,7 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
+import { toast } from 'react-toastify';
 
 interface BoardProps {
     project: ProjectType | null;
@@ -110,7 +111,7 @@ export default function Board({ project }: BoardProps) {
                     url: `http://localhost:3000/${project.boards[0]}`,
                     handleCodeInApp: true,
                 });
-                console.log('Mail sent');
+                toast.success('Member added successfully');
             }
 
         } catch (err) {
@@ -126,9 +127,14 @@ export default function Board({ project }: BoardProps) {
     };
     const rephraseName = (name: string) => {
         const newName = name.split(' ');
-
-        return newName[0][0] + newName[1][0];
+    
+        if (newName.length === 1) {
+            return newName[0][0];
+        } else {
+            return newName[0][0] + newName[1][0];
+        }
     }
+    
 
     return (
         <>

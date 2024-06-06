@@ -49,7 +49,7 @@ const Items = ({  id,title,isOverlay }: any) => {
             }}
             className={clsx(
                 'px-2 py-4 bg-white shadow-md w-full border border-transparent hover:border-gray-200 cursor-pointer',
-                isDragging && 'opacity-0', isOverlay && 'rotate-6'
+                isDragging && 'opacity-0', isOverlay && 'rotate-3'
             )}
         >
             <div className="flex items-center justify-between">
