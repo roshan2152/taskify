@@ -16,13 +16,13 @@ import { TicketType, itemType } from '@/types';
 //     reporter: '',
 //     createdAt: string,
 // };
-interface ItemsProps {  
-    ticket: TicketType; 
+interface ItemsProps {
+    ticket: TicketType;
     id: UniqueIdentifier;
     title: string;
 };
 
-const Items = ({  id,title,isOverlay }: any) => {
+const Items = ({ id, title, isOverlay }: any) => {
 
     const {
         attributes,
@@ -49,7 +49,7 @@ const Items = ({  id,title,isOverlay }: any) => {
             }}
             className={clsx(
                 'px-2 py-4 bg-white shadow-md w-full border border-transparent hover:border-gray-200 cursor-pointer',
-                isDragging && 'opacity-0', isOverlay && 'rotate-3'
+                isDragging && 'opacity-0',
             )}
         >
             <div className="flex items-center justify-between">

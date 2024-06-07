@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -25,10 +25,9 @@ import Modal from '@/components/Modal/modal';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { addColumn } from '@/backend/boards';
-import { addTicket, getTicket, moveTicketToDifferentContainer,moveTicketToEmptyContainer,moveTicketInSameContainer} from '@/backend/tickets';
+import { addTicket, getTicket, moveTicketToDifferentContainer, moveTicketToEmptyContainer, moveTicketInSameContainer } from '@/backend/tickets';
 import { Plus } from 'lucide-react';
 import { BoardType, DNDType, TicketType } from '@/types';
-
 
 interface MainBoardProps {
     board: BoardType | null;
@@ -43,8 +42,11 @@ export default function MainBoard({ board }: MainBoardProps) {
     const [itemName, setItemName] = useState('');
     const [showAddContainerModal, setShowAddContainerModal] = useState<boolean>(false);
     const [showAddItemModal, setShowAddItemModal] = useState<boolean>(false);
+    const [showTicketModal, setShowTicketModal] = useState<boolean>(false);
     const [isCreating, setIsCreating] = useState<boolean>(false);
     const [allTickets, setAllTickets] = useState<TicketType[]>([]);
+    const [isMoved, setIsMoved] = useState<boolean>(false);
+    const isMovedRef = useRef(isMoved);
 
 
     const getData = () => {
@@ -89,7 +91,7 @@ export default function MainBoard({ board }: MainBoardProps) {
             if (board) {
                 setIsCreating(true);
 
-                const columnId = 'container'+uuidv4();
+                const columnId = 'container' + uuidv4();
                 await addColumn(board.id, containerName, columnId);
 
                 setContainers([
@@ -119,11 +121,13 @@ export default function MainBoard({ board }: MainBoardProps) {
                 setIsCreating(true);
                 const ticketId = 'item' + uuidv4();
                 const res = await addTicket(board.id, currentContainerId!, itemName, ticketId) as { id: UniqueIdentifier, title: string };
+
                 const newContainers = containers.map((container) => {
                     if (container.id == currentContainerId)
                         container.items.unshift(res)
                     return container;
-                })
+                });
+
                 setContainers(newContainers);
                 getAllTickets();
             }
@@ -176,14 +180,27 @@ export default function MainBoard({ board }: MainBoardProps) {
         }),
     );
 
+    useEffect(() => {
+        isMovedRef.current = isMoved;
+    }, [isMoved]);
+
+
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
         const { id } = active;
         setActiveId(id as string);
+
+        setTimeout(function () {
+            if (!isMovedRef.current) {
+                setShowTicketModal(true);
+            }
+        }, 100);
     };
 
     const handleDragMove = async (event: DragMoveEvent) => {
+
         const { active, over } = event;
+        setIsMoved(true)
 
         // Handle Items Sorting
         if (
@@ -221,7 +238,7 @@ export default function MainBoard({ board }: MainBoardProps) {
                 try {
                     await moveTicketInSameContainer(board?.id!, activeContainerIndex, activeitemIndex, overitemIndex)
                 } catch (e) {
-                    console.log('error in moving ticket in same container',e);
+                    console.log('error in moving ticket in same container', e);
                 }
             } else {
                 // In different containers
@@ -229,11 +246,11 @@ export default function MainBoard({ board }: MainBoardProps) {
                 const [removeditem] = newItems[activeContainerIndex].items.splice(activeitemIndex, 1);
                 newItems[overContainerIndex].items.splice(overitemIndex, 0, removeditem);
                 setContainers(newItems);
-           
+
                 try {
                     await moveTicketToDifferentContainer(removeditem, board?.id!, overContainerIndex, overitemIndex);
                 } catch (err) {
-                    console.log('Error in moving tickets', err); 
+                    console.log('Error in moving tickets', err);
                 }
             }
         }
@@ -272,8 +289,11 @@ export default function MainBoard({ board }: MainBoardProps) {
                 console.log('Error in moving tickets to empty container', err);
             }
         }
-    }
+    };
 
+    const handleDragEnd = () => {
+        setIsMoved(false);
+    };
 
     return (
         <div className="w-full h-full mt-10">
@@ -308,6 +328,21 @@ export default function MainBoard({ board }: MainBoardProps) {
                     <Button onClick={onAddItem}>Add Item</Button>
                 </div>
             </Modal>
+            {/*Ticket Modal */}
+            <Modal showModal={showTicketModal} setShowModal={setShowTicketModal}>
+                <div className="flex flex-col w-full items-start gap-y-4">
+                    <h1 className="text-gray-800 text-3xl font-bold">Ticket</h1>
+                    <Input
+                        type="text"
+                        placeholder="Item Title"
+                        name="itemname"
+                        value='12'
+                    // onChange={(e) => setItemName(e.target.value)}
+                    />
+                    <Button onClick={(e) => { setShowTicketModal(false) }}>Add Ticket</Button>
+                </div>
+            </Modal>
+
 
             <div className="flex flex-row h-full gap-2 overflow-x-auto">
                 <DndContext
@@ -315,6 +350,7 @@ export default function MainBoard({ board }: MainBoardProps) {
                     collisionDetection={closestCorners}
                     onDragStart={handleDragStart}
                     onDragMove={handleDragMove}
+                    onDragEnd={handleDragEnd}
                 >
 
                     <SortableContext items={containers && containers.map((i) => i.id)}>
@@ -331,7 +367,7 @@ export default function MainBoard({ board }: MainBoardProps) {
                                     }}
                                 >
                                     <SortableContext items={container.items.map((item) => item.id)}>
-                                        <div className="flex items-start flex-col gap-y-4" onClick={() => console.log(4324)}>
+                                        <div className="flex items-start flex-col gap-y-4">
                                             {
                                                 container.items.map((ticket) => (
                                                     <Items id={ticket.id} title={ticket.title} key={ticket.id} />
@@ -350,13 +386,11 @@ export default function MainBoard({ board }: MainBoardProps) {
                     <DragOverlay adjustScale={true}>
                         {/* Drag Overlay For item Item */}
                         {activeId && activeId.toString().includes('item') && (
-                            <Items id={activeId} title={findItemTitle(activeId)} isOverlay={true}/>
+                            <Items id={activeId} title={findItemTitle(activeId)} isOverlay={true} />
                         )}
                     </DragOverlay>
                 </DndContext>
             </div>
-
         </div>
     )
 }
-
