@@ -33,12 +33,14 @@ export const createProject = (name: string, userId: string | undefined) => {
     });
 };
 
-export const deleteProject = (projectId: string) => {
+export const deleteProject = (projectId: string, boardId: string) => {
     return new Promise(async (resolve, reject) => {
 
         try {
-            const docRef = doc(db, "projects", projectId);
-            await deleteDoc(docRef);
+            const docRefProject = doc(db, "projects", projectId);
+            const docRefBoard = doc(db, "boards", boardId);
+            await deleteDoc(docRefProject);
+            await deleteDoc(docRefBoard);
             
             resolve({ message: 'project deleted successfully.' });
         } catch (err) {

@@ -23,9 +23,9 @@ export const ProjectList = ({ projects }: ProjectListProps) => {
         router.push(`/${id}`);
     };
 
-    const handleDeleteProject = async (id: string) =>{
+    const handleDeleteProject = async (id: string, boardId: string) =>{
         try{
-            await deleteProject(id);
+            await deleteProject(id, boardId);
             toast.success('Project deleted successfully');
         }
         catch(err){
@@ -62,7 +62,7 @@ export const ProjectList = ({ projects }: ProjectListProps) => {
                             <p className="p-1 overflow-hidden w-full text-nowrap truncate">
                                 {project.projectName}
                             </p>
-                            <Button onClick={() => handleDeleteProject(project.id)} className='bg-transparent hover:bg-slate-300'>
+                            <Button onClick={() => handleDeleteProject(project.id, project.boards[0])} className='bg-transparent hover:bg-slate-300'>
                                 <Trash2 color='#64748B' strokeWidth={2} size={15} />
                             </Button>
                         </div>
