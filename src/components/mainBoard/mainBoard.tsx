@@ -22,6 +22,7 @@ import {
 import Container from '@/components/Container/container';
 import Items from '@/components/Item/item';
 import Modal from '@/components/Modal/modal';
+import TicketModal from '../TicketModal/TicketModal';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { addColumn } from '@/backend/boards';
@@ -329,19 +330,8 @@ export default function MainBoard({ board }: MainBoardProps) {
                 </div>
             </Modal>
             {/*Ticket Modal */}
-            <Modal showModal={showTicketModal} setShowModal={setShowTicketModal}>
-                <div className="flex flex-col w-full items-start gap-y-4">
-                    <h1 className="text-gray-800 text-3xl font-bold">Ticket</h1>
-                    <Input
-                        type="text"
-                        placeholder="Item Title"
-                        name="itemname"
-                        value='12'
-                    // onChange={(e) => setItemName(e.target.value)}
-                    />
-                    <Button onClick={(e) => { setShowTicketModal(false) }}>Add Ticket</Button>
-                </div>
-            </Modal>
+            
+            <TicketModal showModal={showTicketModal} setShowModal={setShowTicketModal} />
 
 
             <div className="flex flex-row h-full gap-2 overflow-x-auto">
