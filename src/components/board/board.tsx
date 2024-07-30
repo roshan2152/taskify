@@ -107,7 +107,7 @@ export default function Board({ project }: BoardProps) {
             if (project) {
                 await updateProject(project.id, memberData);
                 await sendSignInLinkToEmail(auth, memberData.email, {
-                    url: `http://localhost:3000/${project.boards[0]}`,
+                    url: `https://taaskifyy.vercel.app/${project.boards[0]}`,
                     handleCodeInApp: true,
                 });
                 toast.success('Member added successfully');
