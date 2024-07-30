@@ -13,14 +13,31 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from "@/components/ui/avatar"
+import { MemberType, ProjectType } from '@/types';
 
 
 interface TicketModalProps {
     showModal: boolean;
     setShowModal: Dispatch<SetStateAction<boolean>>;
+    project: ProjectType | null;
 }
 
-const TicketModal: React.FC<TicketModalProps> = ({ showModal, setShowModal }) => {
+const TicketModal: React.FC<TicketModalProps> = ({ showModal, setShowModal, project }) => {
+
+    const rephraseName = (name: string) => {
+        const newName = name.split(' ');
+
+        if (newName.length === 1) {
+            return newName[0][0];
+        } else {
+            return newName[0][0] + newName[1][0];
+        }
+    }
     return (
         <div>
             <Modal showModal={showModal} setShowModal={setShowModal}>
@@ -50,26 +67,44 @@ const TicketModal: React.FC<TicketModalProps> = ({ showModal, setShowModal }) =>
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectItem value="est">Sunil</SelectItem>
-                                    <SelectItem value="cst">Manpreet</SelectItem>
-                                    <SelectItem value="mst">Roshan</SelectItem>
+                                    {project && project.members?.length > 0 && project.members.map((member: MemberType, index) => (
+                                        <SelectItem key={index} value={member.name} className="flex items-center py-2 px-4">
+                                            <div className="flex items-center justify-between">
+                                                <Avatar className="cursor-pointer ml-4 w-8 h-8">
+                                                    <AvatarImage alt={member.name} className="w-full h-full" />
+                                                    <AvatarFallback className="w-full h-full">{rephraseName(member.name)}</AvatarFallback>
+                                                </Avatar>
+                                                <span>{member.name}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
                         <Select>
                             <SelectTrigger className="w-[280px]">
-                                <SelectValue placeholder="Reporter" />
+                                <SelectValue placeholder="Assignee" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup>
-                                    <SelectItem value="est">Sunil</SelectItem>
-                                    <SelectItem value="cst">Manpreet</SelectItem>
-                                    <SelectItem value="mst">Roshan</SelectItem>
+                                    {project && project.members?.length > 0 && project.members
+                                        .filter((member: MemberType) => member.role === 'admin')
+                                        .map((member: MemberType, index) => (
+                                            <SelectItem key={index} value={member.name} className="py-2 px-4">
+                                                <div className="flex items-center w-full">
+                                                    <Avatar className="cursor-pointer ml-4 w-8 h-8">
+                                                        <AvatarImage alt={member.name} className="w-full h-full" />
+                                                        <AvatarFallback className="w-full h-full">{rephraseName(member.name)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <span>{member.name}</span>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button onClick={() => setShowModal(false)}>Add Ticket</Button>
+                    <Button onClick={() => setShowModal(false)}>Update Ticket</Button>
                 </div>
             </Modal>
         </div>

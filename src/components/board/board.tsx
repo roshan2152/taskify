@@ -106,7 +106,6 @@ export default function Board({ project }: BoardProps) {
         try {
             if (project) {
                 await updateProject(project.id, memberData);
-                console.log(123);
                 await sendSignInLinkToEmail(auth, memberData.email, {
                     url: `http://localhost:3000/${project.boards[0]}`,
                     handleCodeInApp: true,
@@ -127,14 +126,14 @@ export default function Board({ project }: BoardProps) {
     };
     const rephraseName = (name: string) => {
         const newName = name.split(' ');
-    
+
         if (newName.length === 1) {
             return newName[0][0];
         } else {
             return newName[0][0] + newName[1][0];
         }
     }
-    
+
 
     return (
         <>
@@ -218,7 +217,7 @@ export default function Board({ project }: BoardProps) {
                                 <UserPlus className='ml-5 h-6 w-6 cursor-pointer' onClick={() => setShowMemberModal(true)} />
                             </div>
                         </div>
-                        <MainBoard board={board} />
+                        <MainBoard board={board} project={project} />
                     </div>
                 ) : (
                     <div className='flex flex-col w-[80vw] h-full px-5'>

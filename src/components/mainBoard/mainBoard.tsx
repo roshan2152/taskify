@@ -28,13 +28,14 @@ import { Input } from '../ui/input';
 import { addColumn } from '@/backend/boards';
 import { addTicket, getTicket, moveTicketToDifferentContainer, moveTicketToEmptyContainer, moveTicketInSameContainer } from '@/backend/tickets';
 import { Plus } from 'lucide-react';
-import { BoardType, DNDType, TicketType } from '@/types';
+import { BoardType, DNDType, ProjectType, TicketType } from '@/types';
 
 interface MainBoardProps {
     board: BoardType | null;
+    project: ProjectType | null;
 }
 
-export default function MainBoard({ board }: MainBoardProps) {
+export default function MainBoard({ board, project }: MainBoardProps) {
 
     const [containers, setContainers] = useState<DNDType[]>([]);
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -195,7 +196,7 @@ export default function MainBoard({ board }: MainBoardProps) {
             if (!isMovedRef.current) {
                 setShowTicketModal(true);
             }
-        }, 100);
+        }, 500);
     };
 
     const handleDragMove = async (event: DragMoveEvent) => {
@@ -330,8 +331,8 @@ export default function MainBoard({ board }: MainBoardProps) {
                 </div>
             </Modal>
             {/*Ticket Modal */}
-            
-            <TicketModal showModal={showTicketModal} setShowModal={setShowTicketModal} />
+
+            <TicketModal showModal={showTicketModal} setShowModal={setShowTicketModal} project={project} />
 
 
             <div className="flex flex-row h-full gap-2 overflow-x-auto">

@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import Modal from '../Modal/modal';
 import { Button } from '../ui/button';
 import { TicketType, itemType } from '@/types';
+import { Trash2 } from 'lucide-react';
 
 // type ItemType = {
 //     id: UniqueIdentifier;
@@ -53,7 +54,13 @@ const Items = ({ id, title, isOverlay }: any) => {
             )}
         >
             <div className="flex items-center justify-between">
-                {title}
+                <span>{title}</span>
+                <Button
+                    // onClick={() => onDelete(id)}
+                    className='top-2 right-2 bg-transparent hover:bg-slate-400'
+                >
+                    <Trash2 color='black' size={15} />
+                </Button>
             </div>
         </div>
     );
