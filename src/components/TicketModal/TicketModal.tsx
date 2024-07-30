@@ -55,7 +55,7 @@ const TicketModal: React.FC<TicketModalProps> = ({ showModal, setShowModal, proj
                             <Textarea
                                 placeholder="Description"
                                 name="description"
-                                value='12'
+                                value=''
                             />
                         </div>
                     </div>
