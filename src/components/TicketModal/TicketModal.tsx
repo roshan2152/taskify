@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import Modal from '../Modal/modal';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -29,6 +29,9 @@ interface TicketModalProps {
 
 const TicketModal: React.FC<TicketModalProps> = ({ showModal, setShowModal, project }) => {
 
+    const [ticketName,setTicketName] = useState('');
+    const [ticketDescription,setTicketDescription] = useState('');
+
     const rephraseName = (name: string) => {
         const newName = name.split(' ');
 
@@ -44,18 +47,20 @@ const TicketModal: React.FC<TicketModalProps> = ({ showModal, setShowModal, proj
                 <div className='flex flex-col gap-5'>
                     <div className="flex flex-col gap-5 w-full items-start">
                         <Input
+                            onChange={(e) => setTicketName(e.target.value)}
                             type="text"
                             placeholder="Item Title"
                             name="itemname"
-                            value='Ticket Name'
+                            value={ticketName}
                             className='border-0 hover:bg-gray-200 focus:border-gray-200 text-lg font-bold'
                         />
                         <div className="flex flex-col gap-1 w-full items-start">
                             <Label>Description</Label>
                             <Textarea
+                                onChange={(e) => setTicketDescription(e.target.value)}
                                 placeholder="Description"
                                 name="description"
-                                value=''
+                                value={ticketDescription}
                             />
                         </div>
                     </div>
