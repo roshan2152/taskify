@@ -83,7 +83,7 @@ export default function MainBoard({ board }: MainBoardProps) {
 
     useEffect(() => {
         getAllTickets();
-    }, []);
+    }, [containers]);
 
     const onAddContainer = async () => {
         if (!containerName) return;
@@ -331,7 +331,7 @@ export default function MainBoard({ board }: MainBoardProps) {
             </Modal>
             {/*Ticket Modal */}
             
-            <TicketModal showModal={showTicketModal} setShowModal={setShowTicketModal} />
+            <TicketModal ticketId={activeId ?? ''} showModal={showTicketModal} setShowModal={setShowTicketModal} />
 
 
             <div className="flex flex-row h-full gap-2 overflow-x-auto">

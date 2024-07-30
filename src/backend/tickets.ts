@@ -90,21 +90,22 @@ export const deleteTicket = (ticketId: string, boardId: string, columnIndex: num
 };
 
 
-export const updateTicket = (ticketId: string, boardId: string, columnIndex: number, ticketData: any) => {
+export const updateTicket = (ticketId: string, ticketData: any) => {
     return new Promise(async (resolve, reject) => {
         const docRef = doc(db, "tickets", ticketId);
         const docSnap = await getDoc(docRef);
 
         try {
+            console.log(ticketData)
 
             if (docSnap.exists()) {
                 await updateDoc(docRef, {
-                    ticketName: ticketData.name,
+                    ticketName: ticketData.ticketName,
                     description: ticketData.description,
                     comments: '',
                     assignee: ticketData.assignee,
                     reporter: ticketData.reporter,
-                    updatedAt: serverTimestamp(),
+                    createdAt: serverTimestamp(),
                 });
 
                 resolve({ message: 'success' });
